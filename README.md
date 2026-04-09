@@ -56,4 +56,4 @@ WoundDoc is not a diagnostic tool. All outputs are draft suggestions intended fo
 - Tasfia Zaman
 - Diniya Tahrin Bhuiyan
 
-![WoundDoc banner](./assets/banner.png)
+![WoundDoc banner](./assets/banner.jpg)
