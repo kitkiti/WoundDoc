@@ -5,7 +5,7 @@ AI-assisted bedside documentation and prevention tool for pressure injuries.
 ## Overview
 WoundDoc is a nurse-focused “photo-to-note” clinical copilot for pressure injury documentation and prevention. It helps clinicians draft structured wound assessment notes, generate stage suspicions as non-diagnostic suggestions, and produce risk-linked prevention checklists while keeping clinicians in the loop.
 
-## Hackathon Context
+## Hackathons
 WoundDoc is being developed for:
 - Harvard Health Systems Innovation Lab (HSIL) Hackathon 2026, where it was selected among approximately 650 applicants as one of the Top 22 teams to pitch at the Dhaka Hub
 - Gemma 4 Good Hackathon on Kaggle
