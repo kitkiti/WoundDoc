@@ -218,3 +218,4 @@ uploads/*
 data/cases/*.json
 data/outputs/*.json
 data/outputs/*.txt
+new.patch
