@@ -4,9 +4,9 @@ import { UPLOADS_DIR } from "@/lib/server/paths";
 import { writeBuffer } from "@/lib/server/storage";
 import type { RoiResult } from "@/lib/types/schema";
 
-type RoiHint = {
+type RoiHint = [number, number, number, number] | {
   bbox?: [number, number, number, number] | null;
-};
+} | null;
 
 type AnalyzeRoiInput = {
   caseId: string;
@@ -109,7 +109,7 @@ function buildSegmentationMask(
   }
 
   const fallbackSeed = Math.floor(height / 2) * width + Math.floor(width / 2);
-  const hint = roiHint?.bbox;
+  const hint = Array.isArray(roiHint) ? roiHint : roiHint?.bbox;
   const seed = hint
     ? clamp(Math.round((hint[1] + hint[3]) / 2), 0, height - 1) * width +
       clamp(Math.round((hint[0] + hint[2]) / 2), 0, width - 1)

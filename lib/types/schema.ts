@@ -276,3 +276,5 @@ export type PatientRecord = z.infer<typeof patientRecordSchema>;
 export type CaseRecord = z.infer<typeof caseRecordSchema>;
 
 export type RoiResult = z.infer<typeof roiResultSchema>;
+export type ClassificationResult = z.infer<typeof classificationResultSchema>
+export type ConcernOutput = z.infer<typeof concernOutputSchema>

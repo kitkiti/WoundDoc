@@ -57,7 +57,7 @@ function deriveCaptureContext(current: CaptureContext): CaptureContext {
     reference_length_cm: current.reference_visible ? current.reference_length_cm : null,
     reference_length_px: current.reference_visible ? current.reference_length_px : null,
     pixels_per_cm: pixelsPerCm,
-    calibration_status: pixelsPerCm ? "manual_reference" : "not_calibrated"
+    calibration_status: pixelsPerCm ? "manual_override" : "not_calibrated"
   };
 }
 
@@ -376,7 +376,7 @@ export default function UploadPage({ params }: UploadPageProps) {
 
         <div className="mt-4 rounded-[22px] bg-mist px-4 py-3 text-sm text-ink/70">
           Calibration status:{" "}
-          {normalizedCaptureContext.calibration_status === "manual_reference"
+          {normalizedCaptureContext.calibration_status === "manual_override"
             ? `ready at ${normalizedCaptureContext.pixels_per_cm?.toFixed(2)} px/cm`
             : "not calibrated yet"}
         </div>
