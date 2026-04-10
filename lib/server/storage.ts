@@ -7,6 +7,7 @@ import {
   WOUNDS_DIR,
   ensureAppDirectories
 } from "@/lib/server/paths";
+import { deriveCaseProgression } from "@/lib/server/progression";
 import {
   caseRecordSchema,
   encounterRecordSchema,
@@ -163,9 +164,11 @@ export async function getCaseRecord(caseId: string): Promise<CaseRecord | null> 
   if (!patient || !wound) return null;
 
   const encounters = await Promise.all(wound.encounter_ids.map((id) => getEncounterRecord(id)));
-  const timeline = sortTimeline(encounters.filter((entry): entry is EncounterRecord => Boolean(entry)));
+  const encounterTimeline = encounters.filter((entry): entry is EncounterRecord => Boolean(entry));
+  const timeline = sortTimeline(encounterTimeline);
+  const progression = deriveCaseProgression(encounterTimeline, encounter.encounter_id);
 
-  return caseRecordSchema.parse({ patient, wound, encounter, timeline });
+  return caseRecordSchema.parse({ patient, wound, encounter, timeline, progression });
 }
 
 export async function createEncounterRecord(caseId: string) {

@@ -72,6 +72,14 @@ function formatTissueComposition(value: TissueComposition | null | undefined) {
     .join(", ");
 }
 
+function formatProgressionLabel(value: "improving" | "stable" | "worsening" | "insufficient_data") {
+  if (value === "insufficient_data") {
+    return "Not enough data";
+  }
+
+  return value.replace(/_/g, " ");
+}
+
 export default function ResultsPage({ params }: ResultsPageProps) {
   const router = useRouter();
   const [caseRecord, setCaseRecord] = useState<CaseRecord | null>(null);
@@ -243,7 +251,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
     );
   }
 
-  const { encounter, patient, timeline, wound } = caseRecord;
+  const { encounter, patient, timeline, wound, progression } = caseRecord;
   const analysis = encounter.analysis!;
   const upload = encounter.upload;
 
@@ -289,6 +297,35 @@ export default function ResultsPage({ params }: ResultsPageProps) {
             <p className="mt-1 text-sm leading-6 text-ink/65">{item.detail}</p>
           </div>
         ))}
+      </div>
+
+      <div className="rounded-[30px] border border-white/70 bg-white/85 p-4 shadow-card">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Wound progression</p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span
+            className={cn(
+              "rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em]",
+              progression.status === "improving"
+                ? "bg-emerald-100 text-emerald-700"
+                : progression.status === "worsening"
+                  ? "bg-rose-100 text-rose-700"
+                  : progression.status === "stable"
+                    ? "bg-sky-100 text-sky-700"
+                    : "bg-slate-200 text-slate-700"
+            )}
+          >
+            {formatProgressionLabel(progression.status)}
+          </span>
+          {progression.compared_encounter_id ? (
+            <span className="text-xs text-ink/60">Compared to encounter {progression.compared_encounter_id}</span>
+          ) : null}
+        </div>
+        <p className="mt-3 text-sm leading-6 text-ink/70">{progression.summary}</p>
+        {progression.evaluated_metrics.length > 0 ? (
+          <p className="mt-2 text-xs text-ink/60">
+            Metrics compared: {progression.evaluated_metrics.join(", ")}
+          </p>
+        ) : null}
       </div>
 
       <div className="rounded-[30px] border border-white/70 bg-white/85 p-4 shadow-card">

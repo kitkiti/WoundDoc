@@ -262,11 +262,27 @@ export const encounterTimelineEntrySchema = z.object({
   has_review: z.boolean()
 });
 
+export const progressionStatusSchema = z.enum([
+  "improving",
+  "stable",
+  "worsening",
+  "insufficient_data"
+]);
+
+export const caseProgressionSchema = z.object({
+  available: z.boolean().default(false),
+  status: progressionStatusSchema.default("insufficient_data"),
+  summary: z.string().default(""),
+  compared_encounter_id: z.string().nullable().default(null),
+  evaluated_metrics: z.array(z.string()).default([])
+});
+
 export const caseRecordSchema = z.object({
   patient: patientRecordSchema,
   wound: woundRecordSchema,
   encounter: encounterRecordSchema,
-  timeline: z.array(encounterTimelineEntrySchema)
+  timeline: z.array(encounterTimelineEntrySchema),
+  progression: caseProgressionSchema
 });
 
 export type UploadRecord = z.infer<typeof uploadRecordSchema>;
@@ -279,6 +295,7 @@ export type EncounterRecord = z.infer<typeof encounterRecordSchema>;
 export type WoundRecord = z.infer<typeof woundRecordSchema>;
 export type PatientRecord = z.infer<typeof patientRecordSchema>;
 export type CaseRecord = z.infer<typeof caseRecordSchema>;
+export type CaseProgression = z.infer<typeof caseProgressionSchema>;
 
 export type RoiResult = z.infer<typeof roiResultSchema>;
 export type ClassificationResult = z.infer<typeof classificationResultSchema>
