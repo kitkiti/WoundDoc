@@ -29,6 +29,9 @@ const emptyForm: RiskForm = {
   previous_pressure_injury: false,
   support_surface_in_use: false,
   formal_risk_score: null,
+  clinician_severity_score: null,
+  clinician_confirmation_status: "pending",
+  clinician_confirmation_note: "",
   comments: ""
 };
 
@@ -215,6 +218,61 @@ export default function RiskPage({ params }: RiskPageProps) {
             )
           }
           placeholder="Optional"
+          className="mt-3 w-full rounded-[22px] border border-ink/10 bg-mist px-4 py-3 text-sm text-ink outline-none transition focus:border-teal"
+        />
+
+        <label className="mt-4 block text-sm font-semibold text-ink">
+          Clinician severity score (0-10)
+        </label>
+        <input
+          type="number"
+          inputMode="numeric"
+          min={0}
+          max={10}
+          value={form.clinician_severity_score ?? ""}
+          onChange={(event) =>
+            updateField(
+              "clinician_severity_score",
+              event.target.value === "" ? null : Number(event.target.value)
+            )
+          }
+          placeholder="Optional"
+          className="mt-3 w-full rounded-[22px] border border-ink/10 bg-mist px-4 py-3 text-sm text-ink outline-none transition focus:border-teal"
+        />
+
+        <label className="mt-4 block text-sm font-semibold text-ink">
+          Clinician confirmation status
+        </label>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          {([
+            { label: "Pending", value: "pending" },
+            { label: "Confirmed", value: "confirmed" },
+            { label: "Needs review", value: "needs_review" }
+          ] as const).map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => updateField("clinician_confirmation_status", option.value)}
+              className={cn(
+                "rounded-full px-4 py-2 text-sm font-semibold transition",
+                form.clinician_confirmation_status === option.value
+                  ? "bg-ink text-white"
+                  : "border border-ink/10 bg-mist text-ink/65"
+              )}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+
+        <label className="mt-4 block text-sm font-semibold text-ink">
+          Confirmation note
+        </label>
+        <textarea
+          rows={3}
+          value={form.clinician_confirmation_note}
+          onChange={(event) => updateField("clinician_confirmation_note", event.target.value)}
+          placeholder="Optional rationale for confirmation status"
           className="mt-3 w-full rounded-[22px] border border-ink/10 bg-mist px-4 py-3 text-sm text-ink outline-none transition focus:border-teal"
         />
 

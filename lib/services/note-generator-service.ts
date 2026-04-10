@@ -8,6 +8,11 @@ export function generateStructuredNote({ riskForm, classification, concernOutput
     `Site: ${riskForm.body_site || "not specified"}`,
     `Concern: ${concernOutput.label}`,
     `Confidence: ${concernOutput.confidence_text}`,
+    `Clinician severity score (0-10): ${riskForm.clinician_severity_score ?? "not entered"}`,
+    `Clinician confirmation status: ${riskForm.clinician_confirmation_status}`,
+    riskForm.clinician_confirmation_note
+      ? `Clinician confirmation note: ${riskForm.clinician_confirmation_note}`
+      : "Clinician confirmation note: not entered",
     "Recommended prevention checklist:",
     checklistText || "- No items generated"
   ].join("\n");

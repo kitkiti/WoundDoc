@@ -56,7 +56,7 @@ export async function runFullPipeline(input: Input) {
           exudate_estimate: null,
           image_quality_score: null,
           measurement_confidence: calibrated.measurement_confidence,
-          severity_score: null
+          severity_score: Math.round(classifierRun.result.pressure_injury_probability * 10)
         },
         clinician_entered: {
           area_px: null,
@@ -71,7 +71,7 @@ export async function runFullPipeline(input: Input) {
           exudate_estimate: null,
           image_quality_score: null,
           measurement_confidence: null,
-          severity_score: null
+          severity_score: riskForm.clinician_severity_score
         },
         depth_guidance: "Depth cannot be inferred from a single 2D image.",
         structured_measurements: {

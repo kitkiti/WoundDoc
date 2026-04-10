@@ -35,6 +35,11 @@ export const riskFormSchema = z.object({
   previous_pressure_injury: z.boolean().default(false),
   support_surface_in_use: z.boolean().default(false),
   formal_risk_score: z.number().nullable().default(null),
+  clinician_severity_score: z.number().min(0).max(10).nullable().default(null),
+  clinician_confirmation_status: z
+    .enum(["pending", "confirmed", "needs_review"])
+    .default("pending"),
+  clinician_confirmation_note: z.string().default(""),
   comments: z.string().default("")
 });
 

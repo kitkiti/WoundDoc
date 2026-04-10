@@ -38,6 +38,9 @@ export const demoCases: DemoCase[] = [
       previous_pressure_injury: false,
       support_surface_in_use: true,
       formal_risk_score: 14,
+      clinician_severity_score: 5,
+      clinician_confirmation_status: "needs_review",
+      clinician_confirmation_note: "Mixed visual quality; keep bedside reassessment active.",
       comments: "Limited reposition tolerance overnight."
     },
     captureContext: {
@@ -67,6 +70,9 @@ export const demoCases: DemoCase[] = [
       previous_pressure_injury: true,
       support_surface_in_use: false,
       formal_risk_score: 12,
+      clinician_severity_score: 7,
+      clinician_confirmation_status: "confirmed",
+      clinician_confirmation_note: "Findings align with bedside pressure injury concern.",
       comments: "Offloading boots intermittently removed."
     },
     captureContext: {
@@ -97,6 +103,9 @@ export const demoCases: DemoCase[] = [
       previous_pressure_injury: false,
       support_surface_in_use: false,
       formal_risk_score: 9,
+      clinician_severity_score: 4,
+      clinician_confirmation_status: "pending",
+      clinician_confirmation_note: "",
       comments: "Cannula pressure relieved and repositioned."
     },
     captureContext: {

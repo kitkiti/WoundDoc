@@ -449,6 +449,21 @@ export default function ResultsPage({ params }: ResultsPageProps) {
             detail: "Structured location captured for the wound timeline."
           },
           {
+            label: "Clinician severity",
+            value:
+              analysis.risk_form.clinician_severity_score === null
+                ? "Not entered"
+                : `${analysis.risk_form.clinician_severity_score} / 10`,
+            detail: "Manual severity scoring for safer interpretation of wound seriousness."
+          },
+          {
+            label: "Manual confirmation",
+            value: formatLabel(analysis.risk_form.clinician_confirmation_status),
+            detail:
+              analysis.risk_form.clinician_confirmation_note?.trim() ||
+              "No clinician confirmation note entered."
+          },
+          {
             label: "Model adapter",
             value: analysis.meta.model_name,
             detail: "Current encounter inference adapter."
