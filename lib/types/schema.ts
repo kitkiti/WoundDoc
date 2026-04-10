@@ -113,6 +113,15 @@ export const roiResultSchema = z.object({
   contour_points: z.number().int().nonnegative().optional(),
   mask_area_px: z.number().nonnegative().nullable().optional(),
   mask_coverage_ratio: z.number().min(0).max(1).nullable().optional(),
+  perimeter_px: z.number().nonnegative().nullable().optional(),
+  segmentation_method: z.string().default("intensity_component_v1"),
+  crop_dimensions: z
+    .object({
+      width: z.number().int().positive(),
+      height: z.number().int().positive()
+    })
+    .nullable()
+    .optional(),
   quality_flags: z.array(z.string()).default([]),
   crop_url: z.string(),
   overlay_url: z.string(),
@@ -265,3 +274,5 @@ export type EncounterRecord = z.infer<typeof encounterRecordSchema>;
 export type WoundRecord = z.infer<typeof woundRecordSchema>;
 export type PatientRecord = z.infer<typeof patientRecordSchema>;
 export type CaseRecord = z.infer<typeof caseRecordSchema>;
+
+export type RoiResult = z.infer<typeof roiResultSchema>;
