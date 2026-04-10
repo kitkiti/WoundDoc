@@ -140,10 +140,38 @@ It must print JSON to `stdout`:
     "pressure_injury": 0.63,
     "diabetic_ulcer": 0.08,
     "venous_ulcer": 0.06,
-    "surgical_wound": 0.11,
-    "intact_skin": 0.12
+      "surgical_wound": 0.11,
+      "intact_skin": 0.12
   },
-  "adapter_name": "my-wound-model"
+  "adapter_name": "my-wound-model",
+  "model_version": "2026.04.0",
+  "uncertainty_reasons": ["shadowing_near_wound_edge"],
+  "secondary_findings": ["possible moisture-associated damage"]
+}
+```
+
+Optional richer inference block (recommended) can be returned as part of full pipeline output under `inference`:
+
+```json
+{
+  "adapter_name": "my-wound-model",
+  "adapter_version": "2.3.1",
+  "model_name": "my-wound-model",
+  "model_version": "2026.04.0",
+  "inference_id": "infer_01HT...XYZ",
+  "latency_ms": 512,
+  "uncertainty": {
+    "score": 0.27,
+    "confidence_band": "moderate",
+    "reasons": ["low_contrast", "partial_obstruction"]
+  },
+  "outputs": {
+    "segmentation_available": true,
+    "measurements_available": true,
+    "severity_available": true,
+    "progression_available": false
+  },
+  "raw_outputs": {}
 }
 ```
 
@@ -224,9 +252,14 @@ The export screen also supports:
   "roi": {
     "found": true,
     "bbox": [120, 140, 520, 560],
+    "mask_bbox": [126, 146, 516, 554],
+    "contour_points": 412,
+    "mask_area_px": 168000,
+    "mask_coverage_ratio": 0.61,
     "quality_flags": [],
     "crop_url": "/api/files/uploads/encounter-123/roi-crop.png",
-    "overlay_url": "/api/files/uploads/encounter-123/roi-overlay.png"
+    "overlay_url": "/api/files/uploads/encounter-123/roi-overlay.png",
+    "mask_url": "/api/files/uploads/encounter-123/roi-mask.png"
   },
   "classification": {
     "top_class": "pressure_injury",
@@ -238,7 +271,32 @@ The export screen also supports:
       "venous_ulcer": 0.04,
       "surgical_wound": 0.03,
       "intact_skin": 0.09
-    }
+    },
+    "adapter_name": "my-wound-model",
+    "model_version": "2026.04.0",
+    "calibrated": true,
+    "uncertainty_reasons": ["edge_shadowing"],
+    "secondary_findings": ["possible periwound maceration"]
+  },
+  "inference": {
+    "adapter_name": "my-wound-model",
+    "adapter_version": "2.3.1",
+    "model_name": "my-wound-model",
+    "model_version": "2026.04.0",
+    "inference_id": "infer_01HT...XYZ",
+    "latency_ms": 512,
+    "uncertainty": {
+      "score": 0.27,
+      "confidence_band": "moderate",
+      "reasons": ["low_contrast", "partial_obstruction"]
+    },
+    "outputs": {
+      "segmentation_available": true,
+      "measurements_available": true,
+      "severity_available": true,
+      "progression_available": false
+    },
+    "raw_outputs": {}
   },
   "wound_metrics": {
     "ai_estimated": {
@@ -266,12 +324,40 @@ The export screen also supports:
       "image_quality_score": null,
       "measurement_confidence": null,
       "severity_score": 65
+    },
+    "structured_measurements": {
+      "ai_estimated": {
+        "area": {
+          "value": 5.8,
+          "unit": "cm2",
+          "source": "ai",
+          "confidence": "moderate",
+          "method": "segmentation_calibrated",
+          "requires_confirmation": true,
+          "note": "Verify with bedside ruler."
+        }
+      },
+      "clinician_entered": {
+        "area": {
+          "value": 6.4,
+          "unit": "cm2",
+          "source": "clinician",
+          "confidence": "high",
+          "method": "manual_ruler",
+          "requires_confirmation": false,
+          "note": ""
+        }
+      }
     }
   },
   "concern_output": {
     "label": "stage_suspicion",
     "confidence": "moderate",
-    "note": "Possible superficial pressure-injury pattern. This is a non-diagnostic stage suspicion for clinician review."
+    "confidence_text": "moderate confidence due to consistent image + risk cues",
+    "note": "Possible superficial pressure-injury pattern. This is a non-diagnostic stage suspicion for clinician review.",
+    "stage_suspicion": "possible_stage_2",
+    "escalation_level": "watch",
+    "supporting_signals": ["increased moisture risk", "tissue-loss pattern"]
   }
 }
 ```

@@ -21,7 +21,10 @@ The script must print a single JSON object to stdout:
     "surgical_wound": 0.11,
     "intact_skin": 0.12
   },
-  "adapter_name": "my-wound-model"
+  "adapter_name": "my-wound-model",
+  "model_version": "2026.04.0",
+  "uncertainty_reasons": ["example_reason"],
+  "secondary_findings": ["example_finding"]
 }
 
 Replace `run_model` with real inference code for a wound classifier.
@@ -89,6 +92,9 @@ def main() -> int:
         "pressure_injury_probability": probabilities["pressure_injury"],
         "class_probabilities": probabilities,
         "adapter_name": "example-python-script",
+        "model_version": "2026.04.0",
+        "uncertainty_reasons": [],
+        "secondary_findings": [],
     }
     json.dump(response, sys.stdout)
     return 0

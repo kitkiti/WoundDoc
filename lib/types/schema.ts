@@ -47,6 +47,38 @@ export const tissueCompositionSchema = z
   })
   .nullable();
 
+export const confidenceBandSchema = z.enum([
+  "very_low",
+  "low",
+  "moderate",
+  "high",
+  "very_high",
+  "unknown"
+]);
+
+export const measurementValueSchema = z.object({
+  value: z.number().nullable().default(null),
+  unit: z.enum(["px", "cm", "cm2", "percent", "score", "none"]).default("none"),
+  source: z.enum(["ai", "clinician", "derived", "unknown"]).default("unknown"),
+  confidence: confidenceBandSchema.default("unknown"),
+  method: z.string().default("unspecified"),
+  requires_confirmation: z.boolean().default(false),
+  note: z.string().default("")
+});
+
+export const structuredMeasurementSetSchema = z.object({
+  area: measurementValueSchema.default({}),
+  length: measurementValueSchema.default({}),
+  width: measurementValueSchema.default({}),
+  perimeter: measurementValueSchema.default({}),
+  depth: measurementValueSchema.default({}),
+  tunneling: measurementValueSchema.default({}),
+  undermining: measurementValueSchema.default({}),
+  shape_regularity: measurementValueSchema.default({}),
+  severity: measurementValueSchema.default({}),
+  image_quality: measurementValueSchema.default({})
+});
+
 export const metricAssessmentSchema = z.object({
   area_px: z.number().nullable().default(null),
   area_cm2: z.number().nullable().default(null),
@@ -78,6 +110,9 @@ export const roiResultSchema = z.object({
   found: z.boolean(),
   bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).nullable().optional(),
   mask_bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).nullable().optional(),
+  contour_points: z.number().int().nonnegative().optional(),
+  mask_area_px: z.number().nonnegative().nullable().optional(),
+  mask_coverage_ratio: z.number().min(0).max(1).nullable().optional(),
   quality_flags: z.array(z.string()).default([]),
   crop_url: z.string(),
   overlay_url: z.string(),
@@ -89,15 +124,42 @@ export const classificationResultSchema = z.object({
   top_probability: z.number(),
   pressure_injury_probability: z.number(),
   class_probabilities: z.record(z.number()),
-  adapter_name: z.string().optional()
+  adapter_name: z.string().optional(),
+  model_version: z.string().optional(),
+  calibrated: z.boolean().optional(),
+  uncertainty_reasons: z.array(z.string()).default([]),
+  secondary_findings: z.array(z.string()).default([])
 });
 
 export const concernOutputSchema = z.object({
   label: z.string(),
-  confidence: z.string(),
+  confidence: confidenceBandSchema.or(z.string()),
   confidence_text: z.string(),
   note: z.string(),
-  stage_suspicion: z.string().default("not assigned")
+  stage_suspicion: z.string().default("not assigned"),
+  escalation_level: z.enum(["routine", "watch", "urgent", "critical"]).default("routine"),
+  supporting_signals: z.array(z.string()).default([])
+});
+
+export const inferenceOutputSchema = z.object({
+  adapter_name: z.string(),
+  adapter_version: z.string().default("unknown"),
+  model_name: z.string(),
+  model_version: z.string().default("unknown"),
+  inference_id: z.string().default(""),
+  latency_ms: z.number().int().nonnegative().nullable().default(null),
+  uncertainty: z.object({
+    score: z.number().min(0).max(1).nullable().default(null),
+    confidence_band: confidenceBandSchema.default("unknown"),
+    reasons: z.array(z.string()).default([])
+  }),
+  outputs: z.object({
+    segmentation_available: z.boolean().default(false),
+    measurements_available: z.boolean().default(false),
+    severity_available: z.boolean().default(false),
+    progression_available: z.boolean().default(false)
+  }),
+  raw_outputs: z.record(z.unknown()).default({})
 });
 
 export const analysisOutputSchema = z.object({
@@ -112,12 +174,17 @@ export const analysisOutputSchema = z.object({
   }),
   roi: roiResultSchema,
   classification: classificationResultSchema,
+  inference: inferenceOutputSchema.optional(),
   concern_output: concernOutputSchema,
   risk_form: riskFormSchema,
   wound_metrics: z.object({
     ai_estimated: metricAssessmentSchema,
     clinician_entered: metricAssessmentSchema,
-    depth_guidance: z.string()
+    depth_guidance: z.string(),
+    structured_measurements: z.object({
+      ai_estimated: structuredMeasurementSetSchema.default({}),
+      clinician_entered: structuredMeasurementSetSchema.default({})
+    })
   }),
   prevention_checklist: z.array(checklistItemSchema),
   structured_note: z.object({
