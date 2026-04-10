@@ -1,0 +1,9 @@
+{
+  "patient_id": "demo-patient-heel-suspicion",
+  "created_at": "2026-04-10T15:46:58.639Z",
+  "updated_at": "2026-04-10T15:46:58.650Z",
+  "label": "Demo patient heel-suspicion",
+  "wound_ids": [
+    "demo-wound-heel-suspicion"
+  ]
+}

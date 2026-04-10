@@ -1,0 +1,12 @@
+{
+  "wound_id": "demo-wound-heel-suspicion",
+  "patient_id": "demo-patient-heel-suspicion",
+  "created_at": "2026-04-10T15:46:58.639Z",
+  "updated_at": "2026-04-10T15:46:58.650Z",
+  "label": "Right heel wound",
+  "body_site": "Right heel",
+  "encounter_ids": [
+    "26097e57-92f1-43c0-be19-dce1dbe2b322"
+  ],
+  "current_encounter_id": "26097e57-92f1-43c0-be19-dce1dbe2b322"
+}

@@ -1,0 +1,223 @@
+{
+  "encounter_id": "e4877c1c-fbcf-440e-973c-9c87ae813eec",
+  "patient_id": "patient-e4877c1c-fbcf-440e-973c-9c87ae813eec",
+  "wound_id": "wound-e4877c1c-fbcf-440e-973c-9c87ae813eec",
+  "demo_case_id": null,
+  "created_at": "2026-04-10T15:47:57.374Z",
+  "updated_at": "2026-04-10T15:48:14.219Z",
+  "upload": {
+    "stored_name": "upload-1775836077350.png",
+    "original_name": "case_4__day_28__scene_1.png",
+    "mime_type": "image/png",
+    "size": 84703,
+    "image_url": "/api/files/uploads/e4877c1c-fbcf-440e-973c-9c87ae813eec/upload-1775836077350.png",
+    "file_path": "/home/syed-naveed-mahmood/wounddoc/WoundDoc/uploads/e4877c1c-fbcf-440e-973c-9c87ae813eec/upload-1775836077350.png",
+    "source": "upload",
+    "width": 320,
+    "height": 240
+  },
+  "capture_context": {
+    "reference_visible": false,
+    "reference_type": "none",
+    "reference_length_cm": null,
+    "reference_length_px": null,
+    "pixels_per_cm": null,
+    "calibration_status": "not_calibrated",
+    "notes": ""
+  },
+  "risk_form": {
+    "body_site": "Left heel",
+    "mobility_limited": false,
+    "moisture_issue": false,
+    "nutrition_risk": false,
+    "device_present": false,
+    "previous_pressure_injury": false,
+    "support_surface_in_use": false,
+    "formal_risk_score": null,
+    "comments": ""
+  },
+  "analysis": {
+    "meta": {
+      "encounter_id": "e4877c1c-fbcf-440e-973c-9c87ae813eec",
+      "patient_id": "patient-e4877c1c-fbcf-440e-973c-9c87ae813eec",
+      "wound_id": "wound-e4877c1c-fbcf-440e-973c-9c87ae813eec",
+      "demo_mode": true,
+      "model_name": "demo-deterministic-v1",
+      "timestamp": "2026-04-10T15:48:14.195Z",
+      "warnings": [
+        "Demo classifier adapter in use."
+      ]
+    },
+    "roi": {
+      "found": true,
+      "bbox": [
+        0,
+        30,
+        320,
+        240
+      ],
+      "mask_bbox": [
+        0,
+        30,
+        320,
+        240
+      ],
+      "quality_flags": [],
+      "crop_url": "/api/files/uploads/e4877c1c-fbcf-440e-973c-9c87ae813eec/roi-crop.png",
+      "overlay_url": "/api/files/uploads/e4877c1c-fbcf-440e-973c-9c87ae813eec/roi-overlay.png",
+      "mask_url": "/api/files/uploads/e4877c1c-fbcf-440e-973c-9c87ae813eec/roi-mask.png",
+      "mask_area_px": 31968.54395604395,
+      "perimeter_px": 2297.5192096597143,
+      "major_axis_px": 449.9941523223302,
+      "minor_axis_px": 222.93307670679906,
+      "segmentation_method": "heuristic_mask_v1",
+      "crop_dimensions": {
+        "width": 320,
+        "height": 228
+      }
+    },
+    "classification": {
+      "top_class": "pressure_injury",
+      "top_probability": 0.3581414171142668,
+      "pressure_injury_probability": 0.3581414171142668,
+      "class_probabilities": {
+        "pressure_injury": 0.3581414171142668,
+        "diabetic_ulcer": 0.1815539695386653,
+        "venous_ulcer": 0.0986314472812891,
+        "surgical_wound": 0.14314619969097195,
+        "intact_skin": 0.21852696637480684
+      },
+      "adapter_name": "demo-deterministic-v1"
+    },
+    "concern_output": {
+      "label": "unable_to_determine",
+      "confidence": "low",
+      "confidence_text": "Image quality and visual signal are limited. Use the result as documentation support only.",
+      "note": "Unable to determine a reliable wound concern category from this image alone. For clinician review.",
+      "stage_suspicion": "not assigned"
+    },
+    "risk_form": {
+      "body_site": "Left heel",
+      "mobility_limited": false,
+      "moisture_issue": false,
+      "nutrition_risk": false,
+      "device_present": false,
+      "previous_pressure_injury": false,
+      "support_surface_in_use": false,
+      "formal_risk_score": null,
+      "comments": ""
+    },
+    "wound_metrics": {
+      "ai_estimated": {
+        "area_px": 31969,
+        "area_cm2": null,
+        "length_cm": null,
+        "width_cm": null,
+        "perimeter_cm": null,
+        "depth_cm": null,
+        "shape_regularity_score": 8,
+        "tissue_composition": {
+          "granulation": 94,
+          "slough": 0,
+          "eschar": 6,
+          "epithelial": 0
+        },
+        "periwound_findings": [
+          "visible surrounding erythema signal"
+        ],
+        "exudate_estimate": "no obvious heavy drainage signal; manual confirmation required",
+        "image_quality_score": 100,
+        "measurement_confidence": "moderate",
+        "severity_score": 35
+      },
+      "clinician_entered": {
+        "area_px": null,
+        "area_cm2": null,
+        "length_cm": null,
+        "width_cm": null,
+        "perimeter_cm": null,
+        "depth_cm": null,
+        "shape_regularity_score": null,
+        "tissue_composition": null,
+        "periwound_findings": [],
+        "exudate_estimate": null,
+        "image_quality_score": null,
+        "measurement_confidence": null,
+        "severity_score": null
+      },
+      "depth_guidance": "Depth is not inferable from a single 2D mobile photo. Use clinician-entered depth or a validated calibrated workflow."
+    },
+    "prevention_checklist": [
+      {
+        "id": "support-surface-optimization",
+        "title": "Support surface optimization",
+        "description": "Review mattress, heel protector, or seat support configuration for current risk level.",
+        "rationale": "Escalated because risk remains moderate to high.",
+        "priority": "priority",
+        "status": "recommended",
+        "selected": true,
+        "clinician_note": ""
+      },
+      {
+        "id": "document-clinician-review",
+        "title": "Document clinician review",
+        "description": "Confirm the note, checklist, and image interpretation before export.",
+        "rationale": "WoundWatch is documentation support only and not an autonomous diagnostic tool.",
+        "priority": "urgent",
+        "status": "review",
+        "selected": true,
+        "clinician_note": ""
+      }
+    ],
+    "structured_note": {
+      "summary": "Bedside documentation support for Left heel. AI review was unable to determine a reliable wound concern category. Pressure-injury concern probability 36%. Clinician review required.",
+      "full_note": "Reason for review: bedside wound documentation support after image capture of Left heel. Wound location: Left heel. AI concern summary: AI review was unable to determine a reliable wound concern category. Pressure-injury concern probability 36%. Top class pressure injury at 36%. Unable to determine a reliable wound concern category from this image alone. For clinician review. Depth guidance: depth is not inferable from a single 2D mobile photo and remains clinician-entered unless a validated calibrated workflow is used. Risk context: low overall pressure-injury risk. Signals noted: support surface optimization may be needed. Prevention bundle drafted: support surface optimization; document clinician review. Comments: No additional comments entered. Clinician review required prior to final documentation. Documentation support only. Not for autonomous diagnosis.",
+      "copilot_statement": "Documentation support only. Not for autonomous diagnosis."
+    }
+  },
+  "review": {
+    "note_text": "Reason for review: bedside wound documentation support after image capture of Left heel. Wound location: Left heel. AI concern summary: AI review was unable to determine a reliable wound concern category. Pressure-injury concern probability 36%. Top class pressure injury at 36%. Unable to determine a reliable wound concern category from this image alone. For clinician review. Depth guidance: depth is not inferable from a single 2D mobile photo and remains clinician-entered unless a validated calibrated workflow is used. Risk context: low overall pressure-injury risk. Signals noted: support surface optimization may be needed. Prevention bundle drafted: support surface optimization; document clinician review. Comments: No additional comments entered. Clinician review required prior to final documentation. Documentation support only. Not for autonomous diagnosis.",
+    "checklist": [
+      {
+        "id": "support-surface-optimization",
+        "title": "Support surface optimization",
+        "description": "Review mattress, heel protector, or seat support configuration for current risk level.",
+        "rationale": "Escalated because risk remains moderate to high.",
+        "priority": "priority",
+        "status": "recommended",
+        "selected": true,
+        "clinician_note": ""
+      },
+      {
+        "id": "document-clinician-review",
+        "title": "Document clinician review",
+        "description": "Confirm the note, checklist, and image interpretation before export.",
+        "rationale": "WoundWatch is documentation support only and not an autonomous diagnostic tool.",
+        "priority": "urgent",
+        "status": "review",
+        "selected": true,
+        "clinician_note": ""
+      }
+    ],
+    "clinician_acknowledged": false,
+    "clinician_wound_assessment": {
+      "area_px": null,
+      "area_cm2": null,
+      "length_cm": null,
+      "width_cm": null,
+      "perimeter_cm": null,
+      "depth_cm": null,
+      "shape_regularity_score": null,
+      "tissue_composition": null,
+      "periwound_findings": [],
+      "exudate_estimate": null,
+      "image_quality_score": null,
+      "measurement_confidence": null,
+      "severity_score": null
+    }
+  },
+  "export_paths": {
+    "json_path": "/home/syed-naveed-mahmood/wounddoc/WoundDoc/data/outputs/e4877c1c-fbcf-440e-973c-9c87ae813eec.json",
+    "note_path": "/home/syed-naveed-mahmood/wounddoc/WoundDoc/data/outputs/e4877c1c-fbcf-440e-973c-9c87ae813eec.txt"
+  }
+}
