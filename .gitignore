@@ -211,6 +211,9 @@ node_modules/
 .next/
 out/
 npm-debug.log*
+lib/
+!lib/
+!lib/**/*
 
 # Generated case data
 uploads/*
