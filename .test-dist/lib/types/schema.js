@@ -121,6 +121,9 @@ exports.roiResultSchema = zod_1.z.object({
     mask_coverage_ratio: zod_1.z.number().min(0).max(1).nullable().optional(),
     perimeter_px: zod_1.z.number().nonnegative().nullable().optional(),
     segmentation_method: zod_1.z.string().default("intensity_component_v1"),
+    segmentation_confidence: zod_1.z.number().min(0).max(1).nullable().optional(),
+    segmentation_model_name: zod_1.z.string().optional(),
+    segmentation_model_version: zod_1.z.string().optional(),
     crop_dimensions: zod_1.z
         .object({
         width: zod_1.z.number().int().positive(),

@@ -78,7 +78,7 @@ export async function POST(request: Request) {
     }
 
     const { output, riskForm, imagePath: resolvedImagePath } = await runFullPipeline({
-      caseId: encounterId,
+      encounterId,
       patientId: identity.patientId,
       woundId: identity.woundId,
       imagePath,
@@ -138,6 +138,7 @@ export async function POST(request: Request) {
 
     return jsonOk({
       case_id: caseId,
+      encounter_id: encounterId,
       output
     });
   } catch (error) {

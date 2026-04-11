@@ -1,32 +1,33 @@
-import path from "path";
-import Jimp from "jimp";
 import { UPLOADS_DIR } from "@/lib/server/paths";
 import { writeBuffer } from "@/lib/server/storage";
 import { runSegmentationInference } from "@/lib/services/inference/segmentation-service";
-import type { RoiResult } from "@/lib/types/schema";
 import type { RoiHint } from "@/lib/services/inference/types";
+import type { RoiResult } from "@/lib/types/schema";
+import Jimp from "jimp";
+import path from "path";
 
 type AnalyzeRoiInput = {
   caseId: string;
+  artifactId?: string;
   imagePath: string;
   roiHint?: RoiHint;
   presetQualityFlags?: string[];
 };
 
-function toPublicAsset(caseId: string, fileName: string) {
-  return `/api/files/uploads/${caseId}/${fileName}`;
+function toPublicAsset(artifactId: string, fileName: string) {
+  return `/api/files/uploads/${artifactId}/${fileName}`;
 }
 
 async function writeDerivedImages(
   source: Jimp,
-  caseId: string,
+  artifactId: string,
   bbox: [number, number, number, number],
   maskPixels: number[]
 ) {
   const [x1, y1, x2, y2] = bbox;
   const width = source.bitmap.width;
   const height = source.bitmap.height;
-  const caseDir = path.join(UPLOADS_DIR, caseId);
+  const caseDir = path.join(UPLOADS_DIR, artifactId);
 
   const maskImage = new Jimp(width, height, 0x000000ff);
   for (const index of maskPixels) {
@@ -71,9 +72,9 @@ async function writeDerivedImages(
   ]);
 
   return {
-    crop_url: toPublicAsset(caseId, "roi-crop.png"),
-    overlay_url: toPublicAsset(caseId, "roi-overlay.png"),
-    mask_url: toPublicAsset(caseId, "roi-mask.png"),
+    crop_url: toPublicAsset(artifactId, "roi-crop.png"),
+    overlay_url: toPublicAsset(artifactId, "roi-overlay.png"),
+    mask_url: toPublicAsset(artifactId, "roi-mask.png"),
     crop_dimensions: {
       width: x2 - x1 + 1,
       height: y2 - y1 + 1
@@ -83,10 +84,12 @@ async function writeDerivedImages(
 
 export async function analyzeRoi({
   caseId,
+  artifactId,
   imagePath,
   roiHint,
   presetQualityFlags = []
 }: AnalyzeRoiInput): Promise<RoiResult> {
+  const resolvedArtifactId = artifactId ?? caseId;
   const segmentation = await runSegmentationInference({
     imagePath,
     roiHint,
@@ -103,9 +106,9 @@ export async function analyzeRoi({
       mask_area_px: null,
       mask_coverage_ratio: null,
       quality_flags: segmentation.qualityFlags,
-      crop_url: toPublicAsset(caseId, "roi-crop.png"),
-      overlay_url: toPublicAsset(caseId, "roi-overlay.png"),
-      mask_url: toPublicAsset(caseId, "roi-mask.png"),
+      crop_url: toPublicAsset(resolvedArtifactId, "roi-crop.png"),
+      overlay_url: toPublicAsset(resolvedArtifactId, "roi-overlay.png"),
+      mask_url: toPublicAsset(resolvedArtifactId, "roi-mask.png"),
       segmentation_method: segmentation.segmentationMethod,
       segmentation_confidence: segmentation.segmentationConfidence,
       segmentation_model_name: segmentation.segmentationModelName,
@@ -116,7 +119,12 @@ export async function analyzeRoi({
   }
 
   const image = await Jimp.read(imagePath);
-  const files = await writeDerivedImages(image, caseId, segmentation.bbox, segmentation.maskPixels);
+  const files = await writeDerivedImages(
+    image,
+    resolvedArtifactId,
+    segmentation.bbox,
+    segmentation.maskPixels
+  );
 
   return {
     found: true,

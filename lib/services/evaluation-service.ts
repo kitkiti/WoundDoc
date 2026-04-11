@@ -1,12 +1,12 @@
 import type {
-  CaptureContext,
-  CaseProgression,
-  ClassificationResult,
-  ConcernOutput,
-  MetricAssessment,
-  ModelEvaluation,
-  RoiResult,
-  AuditTrail
+    AuditTrail,
+    CaptureContext,
+    CaseProgression,
+    ClassificationResult,
+    ConcernOutput,
+    MetricAssessment,
+    ModelEvaluation,
+    RoiResult
 } from "@/lib/types/schema";
 
 function ratioToPercent(value: number) {
@@ -143,7 +143,9 @@ export function deriveAuditTrail({
   ];
 
   return {
+    model_name: classification.model_name ?? classification.adapter_name ?? "unknown",
     model_version: classification.model_version ?? "unknown",
+    model_card: classification.model_card ?? "",
     inference_id: "",
     generated_at: generatedAt,
     clinician_override: false,
