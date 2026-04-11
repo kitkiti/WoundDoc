@@ -45,16 +45,23 @@ export default function RiskPage({ params }: RiskPageProps) {
   const router = useRouter();
   const [form, setForm] = useState<RiskForm>(emptyForm);
   const [imageUrl, setImageUrl] = useState("");
+  const [activeDraft, setActiveDraft] = useState<ReturnType<typeof getCaseDraft>>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const draft = getCaseDraft(params.caseId);
+
+    if (!draft?.patientId || !draft?.woundId || !draft?.encounterId) {
+      router.replace("/");
+      return;
+    }
 
     if (!draft?.upload) {
       router.replace(`/cases/${params.caseId}/upload`);
       return;
     }
 
+    setActiveDraft(draft);
     setImageUrl(draft.upload.image_url);
     setForm(draft.riskForm ?? emptyForm);
   }, [params.caseId, router]);
@@ -90,6 +97,17 @@ export default function RiskPage({ params }: RiskPageProps) {
       currentStep="risk"
       backHref={`/cases/${params.caseId}/upload`}
     >
+      {activeDraft?.patientLabel && activeDraft?.woundLabel ? (
+        <div className="rounded-[30px] border border-white/70 bg-white/82 p-4 shadow-card">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
+            Active wound
+          </p>
+          <p className="mt-2 text-sm leading-6 text-ink/70">
+            {activeDraft.patientLabel} · {activeDraft.woundLabel}
+          </p>
+        </div>
+      ) : null}
+
       <div className="rounded-[30px] border border-white/70 bg-white/82 p-4 shadow-card">
         <div className="flex items-start gap-4">
           {imageUrl ? (

@@ -56,6 +56,11 @@ export default function AnalysisPage({ params }: AnalysisPageProps) {
           });
         }
 
+        if (!draft?.encounterId || !draft?.patientId || !draft?.woundId) {
+          router.replace("/");
+          return;
+        }
+
         if (!demoCaseId && !draft?.upload) {
           router.replace(`/cases/${params.caseId}/upload`);
           return;
@@ -73,6 +78,9 @@ export default function AnalysisPage({ params }: AnalysisPageProps) {
           },
           body: JSON.stringify({
             caseId: params.caseId,
+            encounterId: draft?.encounterId,
+            patientId: draft?.patientId,
+            woundId: draft?.woundId,
             imagePath: draft?.upload?.file_path,
             captureContext: draft?.captureContext,
             riskForm: draft?.riskForm,

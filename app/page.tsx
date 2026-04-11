@@ -6,7 +6,7 @@ export default function HomePage() {
   return (
     <AppShell
       title="Longitudinal wound monitoring"
-      subtitle="Capture a wound encounter, review transparent AI estimates, add clinician-entered measurements, and export structured longitudinal documentation."
+      subtitle="Create or select a patient, choose a wound, add a baseline or follow-up encounter, review transparent AI estimates, and export longitudinal documentation."
       badge={
         <div className="rounded-full bg-teal px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white">
           Demo-ready
@@ -23,8 +23,9 @@ export default function HomePage() {
           </h2>
           <p className="mt-4 text-sm leading-6 text-white/85">
             WoundWatch is a browser-based demo, not a diagnostic device. It stores wound
-            encounters on a longitudinal timeline, separates AI-estimated versus clinician-entered
-            values, and prepares a reviewable note.
+            encounters on a longitudinal timeline, lets clinicians resume the same wound across
+            visits, separates AI-estimated versus clinician-entered values, and prepares a
+            reviewable note.
           </p>
           <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-2 text-sm font-medium">
             Explore full flow
@@ -43,7 +44,7 @@ export default function HomePage() {
           {
             icon: ShieldCheck,
             title: "Timeline-ready",
-            body: "Patient, wound, and encounter records are stored separately so the wound can accumulate repeat assessments."
+            body: "Patient, wound, and encounter records are stored separately so the same wound can accumulate planned follow-up assessments."
           },
           {
             icon: FileText,

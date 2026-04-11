@@ -76,19 +76,27 @@ export default function UploadPage({ params }: UploadPageProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadRecord, setUploadRecord] = useState<UploadRecord | null>(null);
+  const [activeDraft, setActiveDraft] = useState<ReturnType<typeof getCaseDraft>>(null);
   const [captureContext, setCaptureContext] = useState<CaptureContext>(createEmptyCaptureContext());
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const draft = getCaseDraft(params.caseId);
+    if (!draft?.patientId || !draft?.woundId || !draft?.encounterId) {
+      router.replace("/");
+      return;
+    }
+
+    setActiveDraft(draft);
+
     if (draft?.upload) {
       setUploadRecord(draft.upload);
     }
     if (draft?.captureContext) {
       setCaptureContext(draft.captureContext);
     }
-  }, [params.caseId]);
+  }, [params.caseId, router]);
 
   const previewUrl = useMemo(() => {
     if (selectedFile) {
@@ -156,6 +164,9 @@ export default function UploadPage({ params }: UploadPageProps) {
     try {
       const formData = new FormData();
       formData.append("caseId", params.caseId);
+      formData.append("encounterId", activeDraft?.encounterId ?? "");
+      formData.append("patientId", activeDraft?.patientId ?? "");
+      formData.append("woundId", activeDraft?.woundId ?? "");
       formData.append("file", selectedFile);
       formData.append("referenceVisible", String(normalizedCaptureContext.reference_visible));
       formData.append("referenceType", normalizedCaptureContext.reference_type);
@@ -203,6 +214,17 @@ export default function UploadPage({ params }: UploadPageProps) {
       currentStep="upload"
       backHref="/"
     >
+      {activeDraft?.patientLabel && activeDraft?.woundLabel ? (
+        <div className="rounded-[30px] border border-white/70 bg-white/82 p-4 shadow-card">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
+            Active follow-up target
+          </p>
+          <p className="mt-2 text-sm leading-6 text-ink/70">
+            {activeDraft.patientLabel} · {activeDraft.woundLabel}
+          </p>
+        </div>
+      ) : null}
+
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
