@@ -507,7 +507,7 @@ Definition of done:
 
 ## Priority 1: Make same-wound follow-up encounters possible
 
-### P1.1 Stop using `caseId` as the implicit wound identity
+### ~~P1.1 Stop using `caseId` as the implicit wound identity~~
 
 Current problem:
 
@@ -537,7 +537,7 @@ Definition of done:
 
 - two separate encounters can be saved under one stable `wound_id`
 
-### P1.2 Add patient and wound selection to the UI
+### ~~P1.2 Add patient and wound selection to the UI~~
 
 Target files:
 
@@ -566,7 +566,7 @@ Definition of done:
 
 - a user can intentionally create a follow-up encounter on the same wound from the UI
 
-### P1.3 Expose wound history in the API
+### ~~P1.3 Expose wound history in the API~~
 
 Target files:
 
@@ -595,7 +595,7 @@ Definition of done:
 
 ## Priority 2: Replace ROI heuristics with Hugging Face localization
 
-### P2.1 Create a dedicated inference adapter layer
+### ~~P2.1 Create a dedicated inference adapter layer~~
 
 Target files:
 
@@ -649,7 +649,7 @@ Definition of done:
 
 - ROI is model-backed and returns a true wound mask
 
-### P2.3 Keep the old ROI logic only as explicit fallback
+### ~~P2.3 Keep the old ROI logic only as explicit fallback~~
 
 Target files:
 

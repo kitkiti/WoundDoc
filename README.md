@@ -175,6 +175,33 @@ Optional richer inference block (recommended) can be returned as part of full pi
 }
 ```
 
+## Segmentation adapter layer
+
+ROI localization now routes through a dedicated segmentation service boundary:
+
+- `lib/services/inference/segmentation-service.ts`
+- `lib/services/inference/model-registry.ts`
+- `lib/services/inference/hf-client.ts`
+- `lib/services/inference/fallback-segmentation.ts`
+
+Supported provider modes:
+
+- `WOUNDDOC_SEGMENTATION_PROVIDER=fallback`
+- `WOUNDDOC_SEGMENTATION_PROVIDER=hf_endpoint`
+
+Suggested Hugging Face-backed adapter configuration:
+
+```env
+WOUNDDOC_SEGMENTATION_PROVIDER=hf_endpoint
+WOUNDDOC_SEGMENTATION_MODEL=IDEA-Research/grounding-dino-base + facebook/sam2-hiera-large
+WOUNDDOC_SEGMENTATION_MODEL_VERSION=bootstrap
+WOUNDDOC_SEGMENTATION_ENDPOINT=http://localhost:8000/segment
+WOUNDDOC_SEGMENTATION_ALLOW_FALLBACK=true
+HF_TOKEN=
+```
+
+The `hf_endpoint` mode expects a sidecar or service that runs the actual Grounding DINO + SAM2 or SAM3 stack and returns a wound mask payload. The legacy grayscale/component logic remains available only as the named fallback provider `fallback_intensity_component_v1`.
+
 ## API endpoints
 
 - `POST /api/upload`
