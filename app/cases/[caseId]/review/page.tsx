@@ -180,9 +180,9 @@ export default function ReviewPage({ params }: ReviewPageProps) {
     );
   }
 
-  const { encounter, patient, wound } = caseRecord;
-  const analysis = encounter.analysis!;
-  const aiMetrics = analysis.wound_metrics.ai_estimated;
+  const { encounter, patient, wound, progression } = caseRecord;
+  const resolvedAnalysis = encounter.analysis!;
+  const aiMetrics = resolvedAnalysis.wound_metrics.ai_estimated;
 
   return (
     <AppShell
@@ -190,7 +190,7 @@ export default function ReviewPage({ params }: ReviewPageProps) {
       subtitle="Edit the draft note, confirm checklist items, and add clinician-entered wound values without overwriting AI estimates."
       currentStep="review"
       backHref={`/cases/${params.caseId}/results`}
-      badge={analysis.meta.demo_mode ? <DemoModeBadge /> : undefined}
+      badge={resolvedAnalysis.meta.demo_mode ? <DemoModeBadge /> : undefined}
     >
       <div className="rounded-[30px] border border-white/70 bg-white/85 p-4 shadow-card">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
@@ -199,6 +199,25 @@ export default function ReviewPage({ params }: ReviewPageProps) {
         <p className="mt-2 text-sm leading-6 text-ink/70">
           {patient.label} · {wound.label} · encounter {encounter.encounter_id}
         </p>
+      </div>
+
+      <div className="rounded-[30px] border border-white/70 bg-white/85 p-4 shadow-card">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
+          Longitudinal signal
+        </p>
+        <p className="mt-2 text-sm text-ink/70">{progression.summary}</p>
+        {progression.days_since_previous !== null ? (
+          <p className="mt-1 text-xs text-ink/60">
+            Days since prior encounter: {progression.days_since_previous}
+          </p>
+        ) : null}
+        {resolvedAnalysis.longitudinal_alerts.length > 0 ? (
+          <ul className="mt-2 space-y-1 text-sm text-ink/70">
+            {resolvedAnalysis.longitudinal_alerts.map((alert) => (
+              <li key={alert.id}>• {alert.title}</li>
+            ))}
+          </ul>
+        ) : null}
       </div>
 
       <div className="rounded-[30px] border border-white/70 bg-white/85 p-4 shadow-card">
@@ -238,7 +257,7 @@ export default function ReviewPage({ params }: ReviewPageProps) {
             `Severity score: ${aiMetrics.severity_score ?? "not available"}`,
             `Image quality score: ${aiMetrics.image_quality_score ?? "not available"}`,
             `Measurement confidence: ${aiMetrics.measurement_confidence ?? "not available"}`,
-            `Depth: ${analysis.wound_metrics.depth_guidance}`,
+            `Depth: ${resolvedAnalysis.wound_metrics.depth_guidance}`,
             `Periwound findings: ${
               aiMetrics.periwound_findings.length > 0
                 ? aiMetrics.periwound_findings.join(", ")

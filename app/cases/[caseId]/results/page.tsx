@@ -72,6 +72,14 @@ function formatTissueComposition(value: TissueComposition | null | undefined) {
     .join(", ");
 }
 
+function formatProgressionLabel(value: "improving" | "stable" | "worsening" | "insufficient_data") {
+  if (value === "insufficient_data") {
+    return "Not enough data";
+  }
+
+  return value.replace(/_/g, " ");
+}
+
 export default function ResultsPage({ params }: ResultsPageProps) {
   const router = useRouter();
   const [caseRecord, setCaseRecord] = useState<CaseRecord | null>(null);
@@ -243,7 +251,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
     );
   }
 
-  const { encounter, patient, timeline, wound } = caseRecord;
+  const { encounter, patient, timeline, wound, progression } = caseRecord;
   const analysis = encounter.analysis!;
   const upload = encounter.upload;
 
@@ -290,6 +298,75 @@ export default function ResultsPage({ params }: ResultsPageProps) {
           </div>
         ))}
       </div>
+
+      <div className="rounded-[30px] border border-white/70 bg-white/85 p-4 shadow-card">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">Wound progression</p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span
+            className={cn(
+              "rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em]",
+              progression.status === "improving"
+                ? "bg-emerald-100 text-emerald-700"
+                : progression.status === "worsening"
+                  ? "bg-rose-100 text-rose-700"
+                  : progression.status === "stable"
+                    ? "bg-sky-100 text-sky-700"
+                    : "bg-slate-200 text-slate-700"
+            )}
+          >
+            {formatProgressionLabel(progression.status)}
+          </span>
+          {progression.compared_encounter_id ? (
+            <span className="text-xs text-ink/60">Compared to encounter {progression.compared_encounter_id}</span>
+          ) : null}
+        </div>
+        <p className="mt-3 text-sm leading-6 text-ink/70">{progression.summary}</p>
+        {progression.evaluated_metrics.length > 0 ? (
+          <p className="mt-2 text-xs text-ink/60">
+            Metrics compared: {progression.evaluated_metrics.join(", ")}
+          </p>
+        ) : null}
+        {progression.days_since_previous !== null ? (
+          <p className="mt-1 text-xs text-ink/60">
+            Days since prior encounter: {progression.days_since_previous}
+          </p>
+        ) : null}
+        {progression.metric_deltas.length > 0 ? (
+          <div className="mt-3 grid gap-2 md:grid-cols-3">
+            {progression.metric_deltas.map((delta) => (
+              <div key={delta.key} className="rounded-[18px] bg-mist px-3 py-2">
+                <p className="text-xs font-semibold text-ink">{delta.label}</p>
+                <p className="mt-1 text-xs text-ink/70">
+                  {round(delta.delta_percent, 1)}% ({round(delta.previous_value, 1)} ?{" "}
+                  {round(delta.current_value, 1)})
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </div>
+
+      {analysis.longitudinal_alerts.length > 0 ? (
+        <div className="rounded-[30px] border border-white/70 bg-white/85 p-4 shadow-card">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
+            Clinical alerts
+          </p>
+          <div className="mt-3 space-y-2">
+            {analysis.longitudinal_alerts.map((alert) => (
+              <div key={alert.id} className="rounded-[20px] bg-mist px-4 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-ink">{alert.title}</p>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+                    {alert.level}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-ink/70">{alert.detail}</p>
+                {alert.action ? <p className="mt-1 text-xs text-ink/60">Action: {alert.action}</p> : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <div className="rounded-[30px] border border-white/70 bg-white/85 p-4 shadow-card">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
@@ -449,6 +526,21 @@ export default function ResultsPage({ params }: ResultsPageProps) {
             detail: "Structured location captured for the wound timeline."
           },
           {
+            label: "Clinician severity",
+            value:
+              analysis.risk_form.clinician_severity_score === null
+                ? "Not entered"
+                : `${analysis.risk_form.clinician_severity_score} / 10`,
+            detail: "Manual severity scoring for safer interpretation of wound seriousness."
+          },
+          {
+            label: "Manual confirmation",
+            value: formatLabel(analysis.risk_form.clinician_confirmation_status),
+            detail:
+              analysis.risk_form.clinician_confirmation_note?.trim() ||
+              "No clinician confirmation note entered."
+          },
+          {
             label: "Model adapter",
             value: analysis.meta.model_name,
             detail: "Current encounter inference adapter."
@@ -466,6 +558,53 @@ export default function ResultsPage({ params }: ResultsPageProps) {
           </div>
         ))}
       </div>
+
+      {analysis.evaluation ? (
+        <div className="rounded-[30px] border border-white/70 bg-white/85 p-4 shadow-card">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
+            Evaluation and confidence gate
+          </p>
+          <p className="mt-2 text-sm text-ink/70">
+            Overall status: {formatLabel(analysis.evaluation.overall_status)} ? Confidence gate:{" "}
+            {formatLabel(analysis.evaluation.confidence_gate)} ? Deployment ready:{" "}
+            {analysis.evaluation.ready_for_deployment ? "yes" : "no"}
+          </p>
+          <div className="mt-3 space-y-2">
+            {analysis.evaluation.criteria.map((criterion) => (
+              <div key={criterion.id} className="rounded-[20px] bg-mist px-4 py-3">
+                <p className="text-sm font-semibold text-ink">{criterion.label}</p>
+                <p className="mt-1 text-sm text-ink/70">
+                  {criterion.value === null ? "n/a" : criterion.value}
+                  {criterion.unit === "percent" ? "%" : ""} ? {formatLabel(criterion.status)} ?{" "}
+                  {criterion.target}
+                </p>
+                <p className="mt-1 text-xs text-ink/65">{criterion.note}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {analysis.audit ? (
+        <div className="rounded-[30px] border border-white/70 bg-white/85 p-4 shadow-card">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
+            Audit trail
+          </p>
+          <p className="mt-2 text-sm text-ink/70">
+            Model version: {analysis.audit.model_version} ? Clinician override:{" "}
+            {analysis.audit.clinician_override ? "yes" : "no"}
+          </p>
+          <div className="mt-3 space-y-2">
+            {analysis.audit.metric_sources.map((item) => (
+              <div key={item.metric} className="rounded-[20px] bg-mist px-4 py-3 text-sm text-ink/75">
+                {formatLabel(item.metric)}: {formatLabel(item.source)} ? confidence{" "}
+                {formatLabel(item.confidence)} ?{" "}
+                {item.requires_confirmation ? "confirmation required" : "confirmed"}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <ProbabilityMeter
         label="Pressure-injury concern probability"
