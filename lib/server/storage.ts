@@ -65,7 +65,7 @@ async function listJsonRecords<T>(
 ): Promise<T[]> {
   try {
     const entries = await readdir(directory);
-    const records = await Promise.all(
+    const records: Array<T | null> = await Promise.all(
       entries
         .filter((entry) => entry.endsWith(".json"))
         .map(async (entry) => {
@@ -74,7 +74,7 @@ async function listJsonRecords<T>(
         })
     );
 
-    return records.filter((record): record is T => Boolean(record));
+    return records.filter((record): record is T => record !== null);
   } catch {
     return [];
   }
