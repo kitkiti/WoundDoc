@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Play, Plus } from "lucide-react";
 import { demoCases } from "@/lib/demo/cases";
@@ -41,7 +41,24 @@ export function LandingActions() {
     [wounds, selectedWoundId]
   );
 
-  const loadPatients = async (preferredPatientId?: string, preferredWoundId?: string) => {
+  const loadWounds = useCallback(async (patientId: string, preferredWoundId?: string) => {
+    const response = await fetch(`/api/wounds?patientId=${encodeURIComponent(patientId)}`);
+    const payload = await response.json();
+
+    if (!response.ok || !payload.ok) {
+      throw new Error(payload.error ?? "Unable to load wounds.");
+    }
+
+    const loadedWounds = payload.wounds as WoundRecord[];
+    setWounds(loadedWounds);
+    const nextWoundId =
+      preferredWoundId && loadedWounds.some((wound) => wound.wound_id === preferredWoundId)
+        ? preferredWoundId
+        : loadedWounds[0]?.wound_id ?? "";
+    setSelectedWoundId(nextWoundId);
+  }, []);
+
+  const loadPatients = useCallback(async (preferredPatientId?: string, preferredWoundId?: string) => {
     const response = await fetch("/api/patients");
     const payload = await response.json();
 
@@ -63,24 +80,7 @@ export function LandingActions() {
       setWounds([]);
       setSelectedWoundId("");
     }
-  };
-
-  const loadWounds = async (patientId: string, preferredWoundId?: string) => {
-    const response = await fetch(`/api/wounds?patientId=${encodeURIComponent(patientId)}`);
-    const payload = await response.json();
-
-    if (!response.ok || !payload.ok) {
-      throw new Error(payload.error ?? "Unable to load wounds.");
-    }
-
-    const loadedWounds = payload.wounds as WoundRecord[];
-    setWounds(loadedWounds);
-    const nextWoundId =
-      preferredWoundId && loadedWounds.some((wound) => wound.wound_id === preferredWoundId)
-        ? preferredWoundId
-        : loadedWounds[0]?.wound_id ?? "";
-    setSelectedWoundId(nextWoundId);
-  };
+  }, [loadWounds]);
 
   useEffect(() => {
     const run = async () => {
@@ -95,7 +95,7 @@ export function LandingActions() {
     };
 
     void run();
-  }, []);
+  }, [loadPatients]);
 
   const handlePatientSelect = async (patientId: string) => {
     setSelectedPatientId(patientId);
