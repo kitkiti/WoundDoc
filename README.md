@@ -18,7 +18,7 @@ Safety framing:
 - Mobile-first card UI that feels like a browser-based mobile app
 - Upload or camera-capture style flow
 - Patient -> wound -> encounter storage model for repeat wound tracking
-- ROI localization with a practical image-processing fallback
+- ROI localization with a dedicated segmentation adapter layer and explicit fallback path
 - Swappable classifier adapter layer
 - Deterministic demo classifier fallback when a real model is unavailable
 - Structured `wound_metrics` block with AI-estimated and clinician-entered values
@@ -210,6 +210,8 @@ scripts/                       Demo asset generation and model adapter example
 Important service files:
 
 - [lib/services/roi-service.ts](/home/syed-naveed-mahmood/wounddoc/WoundDoc/lib/services/roi-service.ts)
+- [lib/services/inference/segmentation-service.ts](/home/syed-naveed-mahmood/wounddoc/WoundDoc/lib/services/inference/segmentation-service.ts)
+- [lib/services/inference/model-registry.ts](/home/syed-naveed-mahmood/wounddoc/WoundDoc/lib/services/inference/model-registry.ts)
 - [lib/services/classifier-service.ts](/home/syed-naveed-mahmood/wounddoc/WoundDoc/lib/services/classifier-service.ts)
 - [lib/services/risk-form-service.ts](/home/syed-naveed-mahmood/wounddoc/WoundDoc/lib/services/risk-form-service.ts)
 - [lib/services/checklist-service.ts](/home/syed-naveed-mahmood/wounddoc/WoundDoc/lib/services/checklist-service.ts)
