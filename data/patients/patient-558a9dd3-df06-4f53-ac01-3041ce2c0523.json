@@ -1,0 +1,9 @@
+{
+  "patient_id": "patient-558a9dd3-df06-4f53-ac01-3041ce2c0523",
+  "created_at": "2026-04-11T00:34:52.129Z",
+  "updated_at": "2026-04-11T00:35:55.668Z",
+  "label": "Patient 2C0523",
+  "wound_ids": [
+    "wound-558a9dd3-df06-4f53-ac01-3041ce2c0523"
+  ]
+}

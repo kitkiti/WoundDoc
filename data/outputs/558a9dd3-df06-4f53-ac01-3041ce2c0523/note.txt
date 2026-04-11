@@ -1,0 +1,13 @@
+Bedside wound assessment support output (non-diagnostic):
+Site: Left heel
+Concern: manual review required
+Confidence: Model probability 61%
+Clinician severity score (0-10): not entered
+Clinician confirmation status: pending
+Clinician confirmation note: not entered
+Longitudinal progression: Longitudinal progression: not enough comparable prior data.
+Longitudinal alerts:
+- Baseline only: No prior comparable encounter is available for longitudinal trend review.
+Recommended prevention checklist:
+- Repositioning plan
+- Skin reassessment

@@ -1,0 +1,498 @@
+{
+  "encounter_id": "558a9dd3-df06-4f53-ac01-3041ce2c0523",
+  "patient_id": "patient-558a9dd3-df06-4f53-ac01-3041ce2c0523",
+  "wound_id": "wound-558a9dd3-df06-4f53-ac01-3041ce2c0523",
+  "demo_case_id": null,
+  "created_at": "2026-04-11T00:34:52.129Z",
+  "updated_at": "2026-04-11T00:35:55.668Z",
+  "upload": {
+    "stored_name": "upload-1775867692102.png",
+    "original_name": "case_3__day_1__scene_1.png",
+    "mime_type": "image/png",
+    "size": 81776,
+    "image_url": "/api/files/uploads/558a9dd3-df06-4f53-ac01-3041ce2c0523/upload-1775867692102.png",
+    "file_path": "/home/syed-naveed-mahmood/wounddoc/WoundDoc/uploads/558a9dd3-df06-4f53-ac01-3041ce2c0523/upload-1775867692102.png",
+    "source": "upload",
+    "width": 320,
+    "height": 240
+  },
+  "capture_context": {
+    "reference_visible": false,
+    "reference_type": "none",
+    "reference_length_cm": null,
+    "reference_length_px": null,
+    "pixels_per_cm": null,
+    "calibration_status": "not_calibrated",
+    "notes": ""
+  },
+  "risk_form": {
+    "body_site": "Left heel",
+    "mobility_limited": false,
+    "moisture_issue": false,
+    "nutrition_risk": false,
+    "device_present": false,
+    "previous_pressure_injury": false,
+    "support_surface_in_use": false,
+    "formal_risk_score": null,
+    "clinician_severity_score": null,
+    "clinician_confirmation_status": "pending",
+    "clinician_confirmation_note": "",
+    "comments": ""
+  },
+  "analysis": {
+    "meta": {
+      "encounter_id": "558a9dd3-df06-4f53-ac01-3041ce2c0523",
+      "patient_id": "patient-558a9dd3-df06-4f53-ac01-3041ce2c0523",
+      "wound_id": "wound-558a9dd3-df06-4f53-ac01-3041ce2c0523",
+      "demo_mode": false,
+      "model_name": "Baseline Fusion Classifier",
+      "timestamp": "2026-04-11T00:35:08.460Z",
+      "warnings": []
+    },
+    "roi": {
+      "found": true,
+      "bbox": [
+        0,
+        0,
+        319,
+        212
+      ],
+      "mask_bbox": [
+        0,
+        0,
+        319,
+        212
+      ],
+      "contour_points": 1867,
+      "mask_area_px": 28359,
+      "mask_coverage_ratio": 0.3692578125,
+      "perimeter_px": 1867,
+      "segmentation_method": "intensity_component_v1",
+      "crop_dimensions": {
+        "width": 320,
+        "height": 213
+      },
+      "quality_flags": [],
+      "crop_url": "/api/files/uploads/558a9dd3-df06-4f53-ac01-3041ce2c0523/roi-crop.png",
+      "overlay_url": "/api/files/uploads/558a9dd3-df06-4f53-ac01-3041ce2c0523/roi-overlay.png",
+      "mask_url": "/api/files/uploads/558a9dd3-df06-4f53-ac01-3041ce2c0523/roi-mask.png"
+    },
+    "classification": {
+      "top_class": "pressure_injury",
+      "top_probability": 0.61,
+      "pressure_injury_probability": 0.61,
+      "class_probabilities": {
+        "pressure_injury": 0.61,
+        "moisture_associated_skin_damage": 0.17550000000000002,
+        "friction_or_shear": 0.13649999999999998,
+        "other": 0.07800000000000001
+      },
+      "adapter_name": "baseline-risk-fusion",
+      "model_version": "0.1.0",
+      "calibrated": true,
+      "uncertainty_reasons": [],
+      "secondary_findings": []
+    },
+    "evaluation": {
+      "ready_for_deployment": false,
+      "overall_status": "fail",
+      "confidence_gate": "low",
+      "criteria": [
+        {
+          "id": "segmentation_quality",
+          "label": "Segmentation quality",
+          "value": 36.9,
+          "unit": "percent",
+          "target": ">= 5% useful wound coverage",
+          "status": "pass",
+          "note": "Mask coverage is based on ROI contour area fraction."
+        },
+        {
+          "id": "capture_quality",
+          "label": "Capture quality",
+          "value": 100,
+          "unit": "percent",
+          "target": "No major quality flags",
+          "status": "pass",
+          "note": "Image quality flags were not raised."
+        },
+        {
+          "id": "measurement_completeness",
+          "label": "Measurement completeness",
+          "value": 0,
+          "unit": "percent",
+          "target": "Area + length + width available",
+          "status": "fail",
+          "note": "No calibration reference was provided; centimeter outputs are limited."
+        },
+        {
+          "id": "classification_margin",
+          "label": "Classification confidence margin",
+          "value": 61,
+          "unit": "percent",
+          "target": "Top class probability >= 70%",
+          "status": "watch",
+          "note": "Top class pressure_injury."
+        },
+        {
+          "id": "progression_coverage",
+          "label": "Progression comparability",
+          "value": 0,
+          "unit": "percent",
+          "target": "Prior encounter available for comparison",
+          "status": "watch",
+          "note": "At least two encounters are required before progression can be compared."
+        }
+      ],
+      "generated_at": "2026-04-11T00:35:08.460Z"
+    },
+    "audit": {
+      "model_version": "0.1.0",
+      "inference_id": "",
+      "generated_at": "2026-04-11T00:35:08.460Z",
+      "clinician_override": false,
+      "override_fields": [],
+      "metric_sources": [
+        {
+          "metric": "area_cm2",
+          "source": "unknown",
+          "confidence": "low",
+          "requires_confirmation": true,
+          "uncertainty_reason": ""
+        },
+        {
+          "metric": "severity_score",
+          "source": "derived",
+          "confidence": "moderate",
+          "requires_confirmation": true,
+          "uncertainty_reason": "Model probability 61%"
+        }
+      ]
+    },
+    "concern_output": {
+      "label": "manual review required",
+      "confidence": "low",
+      "confidence_text": "Model probability 61%",
+      "note": "ROI localized at Left heel; clinician confirmation is still required.",
+      "stage_suspicion": "not assigned",
+      "escalation_level": "routine",
+      "supporting_signals": [
+        "manual_confirmation_pending"
+      ]
+    },
+    "risk_form": {
+      "body_site": "Left heel",
+      "mobility_limited": false,
+      "moisture_issue": false,
+      "nutrition_risk": false,
+      "device_present": false,
+      "previous_pressure_injury": false,
+      "support_surface_in_use": false,
+      "formal_risk_score": null,
+      "clinician_severity_score": null,
+      "clinician_confirmation_status": "pending",
+      "clinician_confirmation_note": "",
+      "comments": ""
+    },
+    "wound_metrics": {
+      "ai_estimated": {
+        "area_px": 28359,
+        "area_cm2": null,
+        "length_cm": null,
+        "width_cm": null,
+        "perimeter_cm": null,
+        "depth_cm": null,
+        "shape_regularity_score": null,
+        "tissue_composition": null,
+        "periwound_findings": [],
+        "exudate_estimate": null,
+        "image_quality_score": null,
+        "measurement_confidence": "low",
+        "severity_score": 6
+      },
+      "clinician_entered": {
+        "area_px": null,
+        "area_cm2": null,
+        "length_cm": null,
+        "width_cm": null,
+        "perimeter_cm": null,
+        "depth_cm": null,
+        "shape_regularity_score": null,
+        "tissue_composition": null,
+        "periwound_findings": [],
+        "exudate_estimate": null,
+        "image_quality_score": null,
+        "measurement_confidence": null,
+        "severity_score": null
+      },
+      "depth_guidance": "Depth cannot be inferred from a single 2D image.",
+      "structured_measurements": {
+        "ai_estimated": {
+          "area": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "length": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "width": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "perimeter": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "depth": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "tunneling": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "undermining": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "shape_regularity": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "severity": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "image_quality": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          }
+        },
+        "clinician_entered": {
+          "area": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "length": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "width": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "perimeter": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "depth": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "tunneling": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "undermining": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "shape_regularity": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "severity": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          },
+          "image_quality": {
+            "value": null,
+            "unit": "none",
+            "source": "unknown",
+            "confidence": "unknown",
+            "method": "unspecified",
+            "requires_confirmation": false,
+            "note": ""
+          }
+        }
+      }
+    },
+    "longitudinal_alerts": [
+      {
+        "id": "progression-insufficient",
+        "level": "info",
+        "title": "Baseline only",
+        "detail": "No prior comparable encounter is available for longitudinal trend review.",
+        "action": "Capture the next encounter with a visible reference to enable progression checks."
+      }
+    ],
+    "prevention_checklist": [
+      {
+        "id": "reposition",
+        "title": "Repositioning plan",
+        "description": "Confirm repositioning frequency and offloading approach.",
+        "rationale": "Mobility and pressure exposure are key prevention factors.",
+        "priority": "routine",
+        "status": "pending",
+        "selected": true,
+        "clinician_note": ""
+      },
+      {
+        "id": "skin-check",
+        "title": "Skin reassessment",
+        "description": "Repeat focused skin check at next rounding interval.",
+        "rationale": "Short-interval reassessment reduces missed progression.",
+        "priority": "routine",
+        "status": "pending",
+        "selected": true,
+        "clinician_note": ""
+      }
+    ],
+    "structured_note": {
+      "summary": "Left heel: manual review required (61%).",
+      "full_note": "Bedside wound assessment support output (non-diagnostic):\nSite: Left heel\nConcern: manual review required\nConfidence: Model probability 61%\nClinician severity score (0-10): not entered\nClinician confirmation status: pending\nClinician confirmation note: not entered\nLongitudinal progression: Longitudinal progression: not enough comparable prior data.\nLongitudinal alerts:\n- Baseline only: No prior comparable encounter is available for longitudinal trend review.\nRecommended prevention checklist:\n- Repositioning plan\n- Skin reassessment",
+      "copilot_statement": "AI-generated support for documentation and prevention planning; clinician review and confirmation required."
+    }
+  },
+  "review": {
+    "note_text": "Bedside wound assessment support output (non-diagnostic):\nSite: Left heel\nConcern: manual review required\nConfidence: Model probability 61%\nClinician severity score (0-10): not entered\nClinician confirmation status: pending\nClinician confirmation note: not entered\nLongitudinal progression: Longitudinal progression: not enough comparable prior data.\nLongitudinal alerts:\n- Baseline only: No prior comparable encounter is available for longitudinal trend review.\nRecommended prevention checklist:\n- Repositioning plan\n- Skin reassessment",
+    "checklist": [
+      {
+        "id": "reposition",
+        "title": "Repositioning plan",
+        "description": "Confirm repositioning frequency and offloading approach.",
+        "rationale": "Mobility and pressure exposure are key prevention factors.",
+        "priority": "routine",
+        "status": "pending",
+        "selected": true,
+        "clinician_note": ""
+      },
+      {
+        "id": "skin-check",
+        "title": "Skin reassessment",
+        "description": "Repeat focused skin check at next rounding interval.",
+        "rationale": "Short-interval reassessment reduces missed progression.",
+        "priority": "routine",
+        "status": "pending",
+        "selected": true,
+        "clinician_note": ""
+      }
+    ],
+    "clinician_acknowledged": true,
+    "clinician_wound_assessment": {
+      "area_px": null,
+      "area_cm2": null,
+      "length_cm": null,
+      "width_cm": null,
+      "perimeter_cm": null,
+      "depth_cm": null,
+      "shape_regularity_score": null,
+      "tissue_composition": null,
+      "periwound_findings": [],
+      "exudate_estimate": null,
+      "image_quality_score": null,
+      "measurement_confidence": null,
+      "severity_score": null
+    }
+  },
+  "export_paths": {
+    "json_path": "/home/syed-naveed-mahmood/wounddoc/WoundDoc/data/outputs/558a9dd3-df06-4f53-ac01-3041ce2c0523/encounter.json",
+    "note_path": "/home/syed-naveed-mahmood/wounddoc/WoundDoc/data/outputs/558a9dd3-df06-4f53-ac01-3041ce2c0523/note.txt"
+  }
+}
