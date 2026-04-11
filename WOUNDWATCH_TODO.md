@@ -71,4 +71,4 @@ This roadmap is based on the current shipped app state in this repository, exclu
 
 6. Sixth, update the UI, note generation, checklist generation, and alerting flows so the longitudinal outputs are visible and useful in busy clinical workflows.
 
-7. Seventh, add evaluation, confidence handling, and auditability so the new model behavior is measurable, reviewable, and safer to deploy.
+7. (Done) Seventh, add evaluation, confidence handling, and auditability so the new model behavior is measurable, reviewable, and safer to deploy.

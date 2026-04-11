@@ -298,6 +298,39 @@ The export screen also supports:
     },
     "raw_outputs": {}
   },
+  "evaluation": {
+    "ready_for_deployment": false,
+    "overall_status": "watch",
+    "confidence_gate": "moderate",
+    "criteria": [
+      {
+        "id": "segmentation_quality",
+        "label": "Segmentation quality",
+        "value": 61,
+        "unit": "percent",
+        "target": ">= 5% useful wound coverage",
+        "status": "pass",
+        "note": "Mask coverage is based on ROI contour area fraction."
+      }
+    ],
+    "generated_at": "2026-04-10T12:00:00.000Z"
+  },
+  "audit": {
+    "model_version": "2026.04.0",
+    "inference_id": "infer_01HT...XYZ",
+    "generated_at": "2026-04-10T12:00:00.000Z",
+    "clinician_override": false,
+    "override_fields": [],
+    "metric_sources": [
+      {
+        "metric": "area_cm2",
+        "source": "ai",
+        "confidence": "moderate",
+        "requires_confirmation": true,
+        "uncertainty_reason": "edge_shadowing"
+      }
+    ]
+  },
   "wound_metrics": {
     "ai_estimated": {
       "area_px": 168000,

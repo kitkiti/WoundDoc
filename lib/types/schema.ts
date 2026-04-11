@@ -184,6 +184,41 @@ export const inferenceOutputSchema = z.object({
   raw_outputs: z.record(z.unknown()).default({})
 });
 
+export const evaluationCriterionSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  value: z.number().nullable().default(null),
+  unit: z.enum(["ratio", "percent", "score", "none"]).default("none"),
+  target: z.string().default(""),
+  status: z.enum(["pass", "watch", "fail"]).default("watch"),
+  note: z.string().default("")
+});
+
+export const modelEvaluationSchema = z.object({
+  ready_for_deployment: z.boolean().default(false),
+  overall_status: z.enum(["pass", "watch", "fail"]).default("watch"),
+  confidence_gate: confidenceBandSchema.default("unknown"),
+  criteria: z.array(evaluationCriterionSchema).default([]),
+  generated_at: isoDateTimeSchema
+});
+
+export const auditMetricSourceSchema = z.object({
+  metric: z.string(),
+  source: z.enum(["ai", "clinician", "derived", "unknown"]).default("unknown"),
+  confidence: confidenceBandSchema.default("unknown"),
+  requires_confirmation: z.boolean().default(true),
+  uncertainty_reason: z.string().default("")
+});
+
+export const auditTrailSchema = z.object({
+  model_version: z.string().default("unknown"),
+  inference_id: z.string().default(""),
+  generated_at: isoDateTimeSchema,
+  clinician_override: z.boolean().default(false),
+  override_fields: z.array(z.string()).default([]),
+  metric_sources: z.array(auditMetricSourceSchema).default([])
+});
+
 export const analysisOutputSchema = z.object({
   meta: z.object({
     encounter_id: z.string(),
@@ -197,6 +232,8 @@ export const analysisOutputSchema = z.object({
   roi: roiResultSchema,
   classification: classificationResultSchema,
   inference: inferenceOutputSchema.optional(),
+  evaluation: modelEvaluationSchema.optional(),
+  audit: auditTrailSchema.optional(),
   concern_output: concernOutputSchema,
   risk_form: riskFormSchema,
   wound_metrics: z.object({
@@ -313,6 +350,8 @@ export type RiskForm = z.infer<typeof riskFormSchema>;
 export type TissueComposition = z.infer<typeof tissueCompositionSchema>;
 export type MetricAssessment = z.infer<typeof metricAssessmentSchema>;
 export type ChecklistItem = z.infer<typeof checklistItemSchema>;
+export type ModelEvaluation = z.infer<typeof modelEvaluationSchema>;
+export type AuditTrail = z.infer<typeof auditTrailSchema>;
 export type EncounterRecord = z.infer<typeof encounterRecordSchema>;
 export type WoundRecord = z.infer<typeof woundRecordSchema>;
 export type PatientRecord = z.infer<typeof patientRecordSchema>;

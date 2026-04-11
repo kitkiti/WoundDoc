@@ -3,6 +3,7 @@ import { deriveCalibratedMeasurements } from "@/lib/services/measurement-service
 import { parseRiskForm } from "@/lib/services/risk-form-service";
 import { runClassifier } from "@/lib/services/classifier-service";
 import { deriveConcernOutput } from "@/lib/services/concern-service";
+import { deriveAuditTrail, deriveModelEvaluation } from "@/lib/services/evaluation-service";
 import { generateChecklist } from "@/lib/services/checklist-service";
 import { generateStructuredNote } from "@/lib/services/note-generator-service";
 import { deriveLongitudinalAlerts } from "@/lib/services/alert-service";
@@ -66,7 +67,28 @@ export async function runFullPipeline(input: Input) {
           summary: "At least two encounters are required before progression can be compared.",
           compared_encounter_id: null
         });
-  const concernOutput = deriveConcernOutput({ classification: classifierRun.result, roi, riskForm, progression });
+  const timestamp = new Date().toISOString();
+  const evaluation = deriveModelEvaluation({
+    roi,
+    classification: classifierRun.result,
+    metrics: provisionalMetrics,
+    progression,
+    captureContext: input.captureContext,
+    generatedAt: timestamp
+  });
+  const concernOutput = deriveConcernOutput({
+    classification: classifierRun.result,
+    roi,
+    riskForm,
+    progression,
+    confidenceGate: evaluation.confidence_gate
+  });
+  const audit = deriveAuditTrail({
+    generatedAt: timestamp,
+    classification: classifierRun.result,
+    concern: concernOutput,
+    metrics: provisionalMetrics
+  });
   const longitudinalAlerts = deriveLongitudinalAlerts({ progression, concernOutput, roi });
   const preventionChecklist = generateChecklist({
     classification: classifierRun.result,
@@ -84,8 +106,6 @@ export async function runFullPipeline(input: Input) {
     longitudinalAlerts
   });
 
-  const timestamp = new Date().toISOString();
-
   const output = analysisOutputSchema.parse({
       meta: {
         encounter_id: input.caseId,
@@ -98,6 +118,8 @@ export async function runFullPipeline(input: Input) {
       },
       roi,
       classification: classifierRun.result,
+      evaluation,
+      audit,
       concern_output: concernOutput,
       risk_form: riskForm,
       wound_metrics: {

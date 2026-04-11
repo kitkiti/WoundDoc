@@ -559,6 +559,53 @@ export default function ResultsPage({ params }: ResultsPageProps) {
         ))}
       </div>
 
+      {analysis.evaluation ? (
+        <div className="rounded-[30px] border border-white/70 bg-white/85 p-4 shadow-card">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
+            Evaluation and confidence gate
+          </p>
+          <p className="mt-2 text-sm text-ink/70">
+            Overall status: {formatLabel(analysis.evaluation.overall_status)} ? Confidence gate:{" "}
+            {formatLabel(analysis.evaluation.confidence_gate)} ? Deployment ready:{" "}
+            {analysis.evaluation.ready_for_deployment ? "yes" : "no"}
+          </p>
+          <div className="mt-3 space-y-2">
+            {analysis.evaluation.criteria.map((criterion) => (
+              <div key={criterion.id} className="rounded-[20px] bg-mist px-4 py-3">
+                <p className="text-sm font-semibold text-ink">{criterion.label}</p>
+                <p className="mt-1 text-sm text-ink/70">
+                  {criterion.value === null ? "n/a" : criterion.value}
+                  {criterion.unit === "percent" ? "%" : ""} ? {formatLabel(criterion.status)} ?{" "}
+                  {criterion.target}
+                </p>
+                <p className="mt-1 text-xs text-ink/65">{criterion.note}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {analysis.audit ? (
+        <div className="rounded-[30px] border border-white/70 bg-white/85 p-4 shadow-card">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
+            Audit trail
+          </p>
+          <p className="mt-2 text-sm text-ink/70">
+            Model version: {analysis.audit.model_version} ? Clinician override:{" "}
+            {analysis.audit.clinician_override ? "yes" : "no"}
+          </p>
+          <div className="mt-3 space-y-2">
+            {analysis.audit.metric_sources.map((item) => (
+              <div key={item.metric} className="rounded-[20px] bg-mist px-4 py-3 text-sm text-ink/75">
+                {formatLabel(item.metric)}: {formatLabel(item.source)} ? confidence{" "}
+                {formatLabel(item.confidence)} ?{" "}
+                {item.requires_confirmation ? "confirmation required" : "confirmed"}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       <ProbabilityMeter
         label="Pressure-injury concern probability"
         value={analysis.classification.pressure_injury_probability}
