@@ -326,7 +326,47 @@ export default function ResultsPage({ params }: ResultsPageProps) {
             Metrics compared: {progression.evaluated_metrics.join(", ")}
           </p>
         ) : null}
+        {progression.days_since_previous !== null ? (
+          <p className="mt-1 text-xs text-ink/60">
+            Days since prior encounter: {progression.days_since_previous}
+          </p>
+        ) : null}
+        {progression.metric_deltas.length > 0 ? (
+          <div className="mt-3 grid gap-2 md:grid-cols-3">
+            {progression.metric_deltas.map((delta) => (
+              <div key={delta.key} className="rounded-[18px] bg-mist px-3 py-2">
+                <p className="text-xs font-semibold text-ink">{delta.label}</p>
+                <p className="mt-1 text-xs text-ink/70">
+                  {round(delta.delta_percent, 1)}% ({round(delta.previous_value, 1)} ?{" "}
+                  {round(delta.current_value, 1)})
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </div>
+
+      {analysis.longitudinal_alerts.length > 0 ? (
+        <div className="rounded-[30px] border border-white/70 bg-white/85 p-4 shadow-card">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">
+            Clinical alerts
+          </p>
+          <div className="mt-3 space-y-2">
+            {analysis.longitudinal_alerts.map((alert) => (
+              <div key={alert.id} className="rounded-[20px] bg-mist px-4 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-ink">{alert.title}</p>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+                    {alert.level}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-ink/70">{alert.detail}</p>
+                {alert.action ? <p className="mt-1 text-xs text-ink/60">Action: {alert.action}</p> : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <div className="rounded-[30px] border border-white/70 bg-white/85 p-4 shadow-card">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal">

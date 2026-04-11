@@ -1,4 +1,4 @@
-import { concernOutputSchema, roiResultSchema } from "@/lib/types/schema";
+import { caseProgressionSchema, concernOutputSchema, roiResultSchema } from "@/lib/types/schema";
 import { getErrorMessage, jsonError, jsonOk } from "@/lib/server/http";
 import { deriveConcernOutput } from "@/lib/services/concern-service";
 import { generateChecklist } from "@/lib/services/checklist-service";
@@ -22,14 +22,16 @@ export async function POST(request: Request) {
       : deriveConcernOutput({
           classification,
           roi,
-          riskForm
+          riskForm,
+          progression: caseProgressionSchema.parse({})
         });
 
     const preventionChecklist = generateChecklist({
       classification,
       concernOutput,
       riskForm,
-      roi
+      roi,
+      progression: caseProgressionSchema.parse({})
     });
 
     return jsonOk({

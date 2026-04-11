@@ -1,4 +1,5 @@
 import {
+  caseProgressionSchema,
   checklistItemSchema,
   classificationResultSchema,
   concernOutputSchema
@@ -20,7 +21,9 @@ export async function POST(request: Request) {
       riskForm: parseRiskForm(payload.riskForm),
       classification: classificationResultSchema.parse(payload.classification),
       concernOutput: concernOutputSchema.parse(payload.concernOutput),
-      checklist: checklistItemSchema.array().parse(payload.checklist)
+      checklist: checklistItemSchema.array().parse(payload.checklist),
+      progression: caseProgressionSchema.parse({}),
+      longitudinalAlerts: []
     });
 
     return jsonOk({

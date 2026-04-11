@@ -62,54 +62,58 @@ function evaluateMetric(
   const delta = (currentValue - previousValue) / base;
 
   if (Math.abs(delta) < metric.minimumRelativeChange) {
-    return { status: "stable" as const, label: metric.label };
+    return { status: "stable" as const, label: metric.label, deltaPercent: delta * 100 };
   }
 
   if (metric.improvementDirection === "decrease") {
     return {
       status: delta < 0 ? ("improving" as const) : ("worsening" as const),
-      label: metric.label
+      label: metric.label,
+      deltaPercent: delta * 100
     };
   }
 
   return null;
 }
 
-export function deriveCaseProgression(encounters: EncounterRecord[], currentEncounterId: string): CaseProgression {
-  const sorted = [...encounters].sort(
-    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+type ProgressionInput = {
+  currentCreatedAt: string;
+  currentMetrics: MetricAssessment | null;
+  previousEncounterId: string;
+  previousCreatedAt: string;
+  previousMetrics: MetricAssessment | null;
+};
+
+export function deriveProgressionFromAssessments(input: ProgressionInput): CaseProgression {
+  const previousDate = new Date(input.previousCreatedAt);
+  const currentDate = new Date(input.currentCreatedAt);
+  const daysSincePrevious = Math.max(
+    0,
+    Math.round((currentDate.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24))
   );
-  const currentIndex = sorted.findIndex((entry) => entry.encounter_id === currentEncounterId);
 
-  if (currentIndex <= 0) {
-    return caseProgressionSchema.parse({
-      available: false,
-      status: "insufficient_data",
-      summary: "At least two encounters are required before progression can be compared.",
-      compared_encounter_id: null,
-      evaluated_metrics: []
-    });
-  }
-
-  const currentEncounter = sorted[currentIndex];
-  const previousEncounter = sorted[currentIndex - 1];
-  const currentMetrics = resolvePreferredMetrics(currentEncounter);
-  const previousMetrics = resolvePreferredMetrics(previousEncounter);
-
-  if (!currentMetrics || !previousMetrics) {
+  if (!input.currentMetrics || !input.previousMetrics) {
     return caseProgressionSchema.parse({
       available: false,
       status: "insufficient_data",
       summary: "Progression is unavailable because one of the encounters is missing wound metrics.",
-      compared_encounter_id: previousEncounter.encounter_id,
-      evaluated_metrics: []
+      days_since_previous: daysSincePrevious,
+      compared_encounter_id: input.previousEncounterId,
+      evaluated_metrics: [],
+      metric_deltas: []
     });
   }
 
-  const evaluations = COMPARABLE_METRICS.map((metric) =>
-    evaluateMetric(metric, currentMetrics, previousMetrics)
-  ).filter((entry): entry is { status: "improving" | "stable" | "worsening"; label: string } =>
-    Boolean(entry)
+  const evaluations = COMPARABLE_METRICS.map((metric) => ({
+    metric,
+    result: evaluateMetric(metric, input.currentMetrics!, input.previousMetrics!)
+  })).filter(
+    (
+      entry
+    ): entry is {
+      metric: ComparableMetric;
+      result: { status: "improving" | "stable" | "worsening"; label: string; deltaPercent: number };
+    } => Boolean(entry.result)
   );
 
   if (evaluations.length === 0) {
@@ -117,13 +121,15 @@ export function deriveCaseProgression(encounters: EncounterRecord[], currentEnco
       available: false,
       status: "insufficient_data",
       summary: "Progression is unavailable because no shared comparable metrics were found.",
-      compared_encounter_id: previousEncounter.encounter_id,
-      evaluated_metrics: []
+      days_since_previous: daysSincePrevious,
+      compared_encounter_id: input.previousEncounterId,
+      evaluated_metrics: [],
+      metric_deltas: []
     });
   }
 
-  const worseningCount = evaluations.filter((item) => item.status === "worsening").length;
-  const improvingCount = evaluations.filter((item) => item.status === "improving").length;
+  const worseningCount = evaluations.filter((item) => item.result.status === "worsening").length;
+  const improvingCount = evaluations.filter((item) => item.result.status === "improving").length;
   const status =
     worseningCount > improvingCount
       ? "worsening"
@@ -131,7 +137,7 @@ export function deriveCaseProgression(encounters: EncounterRecord[], currentEnco
         ? "improving"
         : "stable";
 
-  const comparedDate = new Date(previousEncounter.created_at).toLocaleDateString("en-US", {
+  const comparedDate = previousDate.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric"
@@ -145,7 +151,48 @@ export function deriveCaseProgression(encounters: EncounterRecord[], currentEnco
     available: true,
     status,
     summary,
-    compared_encounter_id: previousEncounter.encounter_id,
-    evaluated_metrics: evaluations.map((item) => item.label)
+    days_since_previous: daysSincePrevious,
+    compared_encounter_id: input.previousEncounterId,
+    evaluated_metrics: evaluations.map((item) => item.result.label),
+    metric_deltas: evaluations.map((item) => ({
+      key: item.metric.key,
+      label: item.metric.label,
+      current_value: input.currentMetrics?.[item.metric.key] as number,
+      previous_value: input.previousMetrics?.[item.metric.key] as number,
+      delta_percent: item.result.deltaPercent,
+      status: item.result.status
+    }))
+  });
+}
+
+export function deriveCaseProgression(encounters: EncounterRecord[], currentEncounterId: string): CaseProgression {
+  const sorted = [...encounters].sort(
+    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  );
+  const currentIndex = sorted.findIndex((entry) => entry.encounter_id === currentEncounterId);
+
+  if (currentIndex <= 0) {
+    return caseProgressionSchema.parse({
+      available: false,
+      status: "insufficient_data",
+      summary: "At least two encounters are required before progression can be compared.",
+      days_since_previous: null,
+      compared_encounter_id: null,
+      evaluated_metrics: [],
+      metric_deltas: []
+    });
+  }
+
+  const currentEncounter = sorted[currentIndex];
+  const previousEncounter = sorted[currentIndex - 1];
+  const currentMetrics = resolvePreferredMetrics(currentEncounter);
+  const previousMetrics = resolvePreferredMetrics(previousEncounter);
+
+  return deriveProgressionFromAssessments({
+    currentCreatedAt: currentEncounter.created_at,
+    currentMetrics,
+    previousEncounterId: previousEncounter.encounter_id,
+    previousCreatedAt: previousEncounter.created_at,
+    previousMetrics
   });
 }

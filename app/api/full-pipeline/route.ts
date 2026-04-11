@@ -6,6 +6,7 @@ import { persistExports } from "@/lib/services/export-service";
 import { runFullPipeline } from "@/lib/services/full-pipeline-service";
 import {
   getEncounterRecord,
+  getWoundRecord,
   saveEncounterRecord,
   sanitizeCaseId
 } from "@/lib/server/storage";
@@ -47,6 +48,14 @@ export async function POST(request: Request) {
           }
         : undefined
     );
+    const woundRecord = await getWoundRecord(identity.woundId);
+    const priorEncounterIds = (woundRecord?.encounter_ids ?? [])
+      .filter((id) => id !== caseId)
+      .slice(-8);
+    const priorEncounters = await Promise.all(priorEncounterIds.map((id) => getEncounterRecord(id)));
+    const previousEncounter = priorEncounters
+      .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0] ?? null;
 
     if (!imagePath) {
       return jsonError("Image path was not found for this case.");
@@ -59,6 +68,7 @@ export async function POST(request: Request) {
       imagePath,
       captureContext,
       riskForm: payload.riskForm ?? existingEncounter?.risk_form ?? demoCase?.riskForm,
+      previousEncounter,
       demoCaseId: payload.demoCaseId
     });
 

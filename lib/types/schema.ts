@@ -155,6 +155,14 @@ export const concernOutputSchema = z.object({
   supporting_signals: z.array(z.string()).default([])
 });
 
+export const longitudinalAlertSchema = z.object({
+  id: z.string(),
+  level: z.enum(["info", "watch", "urgent"]),
+  title: z.string(),
+  detail: z.string(),
+  action: z.string().default("")
+});
+
 export const inferenceOutputSchema = z.object({
   adapter_name: z.string(),
   adapter_version: z.string().default("unknown"),
@@ -200,6 +208,7 @@ export const analysisOutputSchema = z.object({
       clinician_entered: structuredMeasurementSetSchema.default({})
     })
   }),
+  longitudinal_alerts: z.array(longitudinalAlertSchema).default([]),
   prevention_checklist: z.array(checklistItemSchema),
   structured_note: z.object({
     summary: z.string(),
@@ -273,8 +282,21 @@ export const caseProgressionSchema = z.object({
   available: z.boolean().default(false),
   status: progressionStatusSchema.default("insufficient_data"),
   summary: z.string().default(""),
+  days_since_previous: z.number().int().nonnegative().nullable().default(null),
   compared_encounter_id: z.string().nullable().default(null),
-  evaluated_metrics: z.array(z.string()).default([])
+  evaluated_metrics: z.array(z.string()).default([]),
+  metric_deltas: z
+    .array(
+      z.object({
+        key: z.string(),
+        label: z.string(),
+        current_value: z.number(),
+        previous_value: z.number(),
+        delta_percent: z.number(),
+        status: z.enum(["improving", "stable", "worsening"])
+      })
+    )
+    .default([])
 });
 
 export const caseRecordSchema = z.object({
