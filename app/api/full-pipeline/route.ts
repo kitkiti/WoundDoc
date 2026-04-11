@@ -7,6 +7,7 @@ import { runFullPipeline } from "@/lib/services/full-pipeline-service";
 import {
   getEncounterRecord,
   getWoundRecord,
+  linkCaseToEncounter,
   saveEncounterRecord,
   sanitizeCaseId
 } from "@/lib/server/storage";
@@ -15,18 +16,25 @@ export async function POST(request: Request) {
   try {
     const payload = (await request.json()) as {
       caseId?: string;
+      encounterId?: string;
+      patientId?: string;
+      woundId?: string;
       imagePath?: string;
       captureContext?: unknown;
       riskForm?: unknown;
       demoCaseId?: string;
     };
     const caseId = sanitizeCaseId(String(payload.caseId ?? ""));
+    const requestedEncounterId = sanitizeCaseId(String(payload.encounterId ?? ""));
+    const requestedPatientId = sanitizeCaseId(String(payload.patientId ?? ""));
+    const requestedWoundId = sanitizeCaseId(String(payload.woundId ?? ""));
 
     if (!caseId) {
       return jsonError("caseId is required.");
     }
 
     const existingEncounter = await getEncounterRecord(caseId);
+    const encounterId = existingEncounter?.encounter_id ?? requestedEncounterId;
     const { demoCase, imagePath } = resolveCaseImageInput({
       imagePath: payload.imagePath,
       encounterRecord: existingEncounter,
@@ -39,18 +47,26 @@ export async function POST(request: Request) {
         {}
     );
     const identity = deriveEncounterIdentity(
-      caseId,
+      encounterId,
       existingEncounter,
       payload.demoCaseId
         ? {
             patientId: `demo-patient-${payload.demoCaseId}`,
             woundId: `demo-wound-${payload.demoCaseId}`
           }
+        : requestedPatientId && requestedWoundId
+          ? {
+              patientId: requestedPatientId,
+              woundId: requestedWoundId
+            }
         : undefined
     );
+    if (!encounterId || !identity.patientId || !identity.woundId) {
+      return jsonError("encounterId, patientId, and woundId are required.");
+    }
     const woundRecord = await getWoundRecord(identity.woundId);
     const priorEncounterIds = (woundRecord?.encounter_ids ?? [])
-      .filter((id) => id !== caseId)
+      .filter((id) => id !== encounterId)
       .slice(-8);
     const priorEncounters = await Promise.all(priorEncounterIds.map((id) => getEncounterRecord(id)));
     const previousEncounter = priorEncounters
@@ -62,7 +78,7 @@ export async function POST(request: Request) {
     }
 
     const { output, riskForm, imagePath: resolvedImagePath } = await runFullPipeline({
-      caseId,
+      caseId: encounterId,
       patientId: identity.patientId,
       woundId: identity.woundId,
       imagePath,
@@ -72,8 +88,14 @@ export async function POST(request: Request) {
       demoCaseId: payload.demoCaseId
     });
 
-    const savedRecord = await saveEncounterRecord(caseId, (current) => ({
-      ...buildEncounterShell(caseId, current ?? existingEncounter, identity),
+    await linkCaseToEncounter(caseId, {
+      encounterId,
+      patientId: identity.patientId,
+      woundId: identity.woundId
+    });
+
+    const savedRecord = await saveEncounterRecord(encounterId, (current) => ({
+      ...buildEncounterShell(encounterId, current ?? existingEncounter, identity),
       demo_case_id: payload.demoCaseId ?? current?.demo_case_id ?? null,
       upload:
         current?.upload ??
@@ -103,8 +125,8 @@ export async function POST(request: Request) {
 
     const exportPaths = await persistExports(savedRecord);
 
-    await saveEncounterRecord(caseId, (current) => ({
-      ...buildEncounterShell(caseId, current, identity),
+    await saveEncounterRecord(encounterId, (current) => ({
+      ...buildEncounterShell(encounterId, current, identity),
       demo_case_id: current?.demo_case_id ?? payload.demoCaseId ?? null,
       upload: current?.upload,
       capture_context: current?.capture_context,

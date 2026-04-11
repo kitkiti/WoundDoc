@@ -1,7 +1,12 @@
 import path from "path";
 import { randomUUID } from "crypto";
 import Jimp from "jimp";
-import { saveEncounterRecord, sanitizeCaseId, writeBuffer } from "@/lib/server/storage";
+import {
+  linkCaseToEncounter,
+  saveEncounterRecord,
+  sanitizeCaseId,
+  writeBuffer
+} from "@/lib/server/storage";
 import { buildEncounterShell } from "@/lib/server/case-record";
 import { ensureAppDirectories, UPLOADS_DIR } from "@/lib/server/paths";
 import { getErrorMessage, jsonError, jsonOk } from "@/lib/server/http";
@@ -25,6 +30,9 @@ export async function POST(request: Request) {
 
     const formData = await request.formData();
     const incomingCaseId = String(formData.get("caseId") ?? randomUUID());
+    const incomingEncounterId = String(formData.get("encounterId") ?? randomUUID());
+    const incomingPatientId = String(formData.get("patientId") ?? "");
+    const incomingWoundId = String(formData.get("woundId") ?? "");
     const file = formData.get("file");
 
     if (!(file instanceof File)) {
@@ -32,6 +40,14 @@ export async function POST(request: Request) {
     }
 
     const caseId = sanitizeCaseId(incomingCaseId || randomUUID());
+    const encounterId = sanitizeCaseId(incomingEncounterId || randomUUID());
+    const patientId = sanitizeCaseId(incomingPatientId);
+    const woundId = sanitizeCaseId(incomingWoundId);
+
+    if (!patientId || !woundId || !encounterId) {
+      return jsonError("patientId, woundId, and encounterId are required.");
+    }
+
     const captureContext = parseCaptureContext({
       reference_visible: formData.get("referenceVisible"),
       reference_type: formData.get("referenceType"),
@@ -41,7 +57,7 @@ export async function POST(request: Request) {
     });
     const extension = getFileExtension(file);
     const storedName = `upload-${Date.now()}${extension}`;
-    const filePath = path.join(UPLOADS_DIR, caseId, storedName);
+    const filePath = path.join(UPLOADS_DIR, encounterId, storedName);
     const buffer = Buffer.from(await file.arrayBuffer());
     const image = await Jimp.read(buffer);
 
@@ -52,15 +68,16 @@ export async function POST(request: Request) {
       original_name: file.name || storedName,
       mime_type: file.type || "application/octet-stream",
       size: file.size,
-      image_url: `/api/files/uploads/${caseId}/${storedName}`,
+      image_url: `/api/files/uploads/${encounterId}/${storedName}`,
       file_path: filePath,
       source: "upload" as const,
       width: image.bitmap.width,
       height: image.bitmap.height
     };
 
-    await saveEncounterRecord(caseId, (current) => ({
-      ...buildEncounterShell(caseId, current),
+    await linkCaseToEncounter(caseId, { encounterId, patientId, woundId });
+    await saveEncounterRecord(encounterId, (current) => ({
+      ...buildEncounterShell(encounterId, current, { patientId, woundId }),
       upload,
       capture_context: captureContext
     }));

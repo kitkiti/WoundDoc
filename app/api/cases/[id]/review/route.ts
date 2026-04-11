@@ -17,8 +17,9 @@ export async function POST(
     const caseId = sanitizeCaseId(params.id);
     const payload = reviewStateSchema.parse(await request.json());
     const current = await getEncounterRecord(caseId);
+    const encounterId = current?.encounter_id;
 
-    if (!current?.analysis) {
+    if (!current?.analysis || !encounterId) {
       return jsonError("Analysis must be completed before review can be saved.", 400);
     }
 
@@ -30,8 +31,8 @@ export async function POST(
       }
     };
 
-    const saved = await saveEncounterRecord(caseId, (existing) => ({
-      ...buildEncounterShell(caseId, existing ?? current),
+    const saved = await saveEncounterRecord(encounterId, (existing) => ({
+      ...buildEncounterShell(encounterId, existing ?? current),
       demo_case_id: existing?.demo_case_id ?? current.demo_case_id ?? null,
       upload: existing?.upload ?? current.upload,
       risk_form: existing?.risk_form ?? current.risk_form,
@@ -41,8 +42,8 @@ export async function POST(
 
     const exportPaths = await persistExports(saved);
 
-    await saveEncounterRecord(caseId, (existing) => ({
-      ...buildEncounterShell(caseId, existing ?? saved),
+    await saveEncounterRecord(encounterId, (existing) => ({
+      ...buildEncounterShell(encounterId, existing ?? saved),
       demo_case_id: existing?.demo_case_id ?? saved.demo_case_id ?? null,
       upload: existing?.upload ?? saved.upload,
       risk_form: existing?.risk_form ?? saved.risk_form,

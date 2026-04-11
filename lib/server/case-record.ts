@@ -5,26 +5,26 @@ function nowIso() {
 }
 
 export function deriveEncounterIdentity(
-  caseId: string,
+  encounterId: string,
   encounter?: EncounterRecord | null,
   fallback?: { patientId: string; woundId: string }
 ) {
   return {
-    patientId: encounter?.patient_id ?? fallback?.patientId ?? `patient-${caseId}`,
-    woundId: encounter?.wound_id ?? fallback?.woundId ?? `wound-${caseId}`
+    patientId: encounter?.patient_id ?? fallback?.patientId ?? `patient-${encounterId}`,
+    woundId: encounter?.wound_id ?? fallback?.woundId ?? `wound-${encounterId}`
   };
 }
 
 export function buildEncounterShell(
-  caseId: string,
+  encounterId: string,
   current?: EncounterRecord | null,
   identity?: { patientId: string; woundId: string }
 ): EncounterRecord {
   const now = nowIso();
-  const resolvedIdentity = identity ?? deriveEncounterIdentity(caseId, current);
+  const resolvedIdentity = identity ?? deriveEncounterIdentity(encounterId, current);
 
   return {
-    encounter_id: caseId,
+    encounter_id: current?.encounter_id ?? encounterId,
     patient_id: current?.patient_id ?? resolvedIdentity.patientId,
     wound_id: current?.wound_id ?? resolvedIdentity.woundId,
     demo_case_id: current?.demo_case_id ?? null,

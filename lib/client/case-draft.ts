@@ -1,6 +1,11 @@
 import type { CaptureContext, RiskForm, UploadRecord } from "@/lib/types/schema";
 
 export type CaseDraft = {
+  patientId?: string;
+  patientLabel?: string;
+  woundId?: string;
+  woundLabel?: string;
+  encounterId?: string;
   upload?: UploadRecord;
   captureContext?: CaptureContext;
   riskForm?: RiskForm;
