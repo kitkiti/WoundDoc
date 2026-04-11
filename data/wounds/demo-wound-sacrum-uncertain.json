@@ -1,0 +1,12 @@
+{
+  "wound_id": "demo-wound-sacrum-uncertain",
+  "patient_id": "demo-patient-sacrum-uncertain",
+  "created_at": "2026-04-11T00:54:26.341Z",
+  "updated_at": "2026-04-11T00:54:26.351Z",
+  "label": "Sacrum wound",
+  "body_site": "Sacrum",
+  "encounter_ids": [
+    "7a3028dc-e532-434f-b2b7-37735a24a2d6"
+  ],
+  "current_encounter_id": "7a3028dc-e532-434f-b2b7-37735a24a2d6"
+}

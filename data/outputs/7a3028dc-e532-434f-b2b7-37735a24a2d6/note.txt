@@ -1,0 +1,13 @@
+Bedside wound assessment support output (non-diagnostic):
+Site: Sacrum
+Concern: pressure injury concern
+Confidence: Model probability 69%
+Clinician severity score (0-10): 5
+Clinician confirmation status: needs_review
+Clinician confirmation note: Mixed visual quality; keep bedside reassessment active.
+Longitudinal progression: Longitudinal progression: not enough comparable prior data.
+Longitudinal alerts:
+- Baseline only: No prior comparable encounter is available for longitudinal trend review.
+Recommended prevention checklist:
+- Repositioning plan
+- Skin reassessment

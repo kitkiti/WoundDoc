@@ -463,7 +463,7 @@ This section maps the required work to the current repository so implementation 
 
 ## Priority 0: Fix broken or misleading foundations
 
-### P0.1 Fix the build until `npm run verify` passes
+### ~~P0.1 Fix the build until `npm run verify` passes~~
 
 Target files:
 
@@ -482,7 +482,7 @@ Definition of done:
 
 - `npm run verify` passes locally
 
-### P0.2 Fix capture reference schema mismatch
+### ~~P0.2 Fix capture reference schema mismatch~~
 
 Current problem:
 

@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test:capture-context": "rm -rf .test-dist && tsc -p tsconfig.tests.json && node --test .test-dist/tests/capture-context-service.test.js",
     "generate:demo-assets": "node scripts/generate-demo-assets.mjs",
     "verify": "npm run generate:demo-assets && npm run build",
     "postinstall": "node scripts/generate-demo-assets.mjs"

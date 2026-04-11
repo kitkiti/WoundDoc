@@ -4,7 +4,6 @@ import {
   type CaptureContext,
   type ClinicianSeverityReview,
   type MetricAssessment,
-  type MetricSourceType,
   type ROIResult
 } from "@/lib/types/schema";
 
@@ -38,10 +37,7 @@ function hasTissueCompositionValue(value: MetricAssessment["tissue_composition"]
   return Object.values(value).some((entry) => hasNumericValue(entry));
 }
 
-function hasMetricValue(
-  field: keyof MetricAssessment,
-  assessment: MetricAssessment
-) {
+function hasMetricValue(field: keyof MetricAssessment, assessment: MetricAssessment) {
   const value = assessment[field];
 
   if (field === "tissue_composition") {
@@ -53,7 +49,7 @@ function hasMetricValue(
   }
 
   if (field === "exudate_estimate" || field === "measurement_confidence") {
-    return hasStringValue(String(value ?? "").trim() || null);
+    return hasStringValue(typeof value === "string" ? value : null);
   }
 
   return hasNumericValue(value as number | null | undefined);
@@ -63,28 +59,40 @@ function getMetricSource(
   field: keyof MetricAssessment,
   aiMetrics: MetricAssessment,
   clinicianMetrics: MetricAssessment
-): MetricSourceType {
+): AuditTrail["metric_sources"][number]["source"] {
   if (hasMetricValue(field, clinicianMetrics)) {
-    return "manual_entered";
+    return "clinician";
   }
 
   if (hasMetricValue(field, aiMetrics)) {
-    return "ai_generated";
+    return "ai";
   }
 
-  return "not_available";
+  return "unknown";
 }
 
-function deriveUncertaintyReasons(roi: ROIResult, captureContext?: CaptureContext) {
-  const reasons = roi.quality_flags.map((flag) => flag.replace(/_/g, " "));
+function getMetricConfidence(
+  field: keyof MetricAssessment,
+  aiMetrics: MetricAssessment,
+  clinicianMetrics: MetricAssessment
+): AuditTrail["metric_sources"][number]["confidence"] {
+  if (getMetricSource(field, aiMetrics, clinicianMetrics) === "clinician") {
+    return "high";
+  }
+
+  return (clinicianMetrics.measurement_confidence ??
+    aiMetrics.measurement_confidence ??
+    "unknown") as AuditTrail["metric_sources"][number]["confidence"];
+}
+
+function deriveUncertaintyReason(roi: ROIResult, captureContext?: CaptureContext) {
+  const reasons = roi.quality_flags.map((flag: string) => flag.replace(/_/g, " "));
 
   if (!captureContext?.pixels_per_cm) {
     reasons.push("no calibrated capture reference supplied");
   }
 
-  reasons.push("depth is not inferable from a single 2D mobile photo");
-
-  return Array.from(new Set(reasons));
+  return Array.from(new Set(reasons)).join("; ");
 }
 
 export function deriveAuditTrail({
@@ -96,48 +104,49 @@ export function deriveAuditTrail({
   clinicianSeverityReview,
   reviewedAt
 }: AuditInput): AuditTrail {
-  const metricSources = {
-    area_px: getMetricSource("area_px", aiMetrics, clinicianMetrics),
-    area_cm2: getMetricSource("area_cm2", aiMetrics, clinicianMetrics),
-    length_cm: getMetricSource("length_cm", aiMetrics, clinicianMetrics),
-    width_cm: getMetricSource("width_cm", aiMetrics, clinicianMetrics),
-    perimeter_cm: getMetricSource("perimeter_cm", aiMetrics, clinicianMetrics),
-    depth_cm: getMetricSource("depth_cm", aiMetrics, clinicianMetrics),
-    shape_regularity_score: getMetricSource(
-      "shape_regularity_score",
-      aiMetrics,
-      clinicianMetrics
-    ),
-    tissue_composition: getMetricSource("tissue_composition", aiMetrics, clinicianMetrics),
-    periwound_findings: getMetricSource("periwound_findings", aiMetrics, clinicianMetrics),
-    exudate_estimate: getMetricSource("exudate_estimate", aiMetrics, clinicianMetrics),
-    image_quality_score: getMetricSource("image_quality_score", aiMetrics, clinicianMetrics),
-    measurement_confidence: getMetricSource(
-      "measurement_confidence",
-      aiMetrics,
-      clinicianMetrics
-    ),
-    severity_score: getMetricSource("severity_score", aiMetrics, clinicianMetrics)
-  };
+  const fields: Array<keyof MetricAssessment> = [
+    "area_px",
+    "area_cm2",
+    "length_cm",
+    "width_cm",
+    "perimeter_cm",
+    "depth_cm",
+    "shape_regularity_score",
+    "tissue_composition",
+    "periwound_findings",
+    "exudate_estimate",
+    "image_quality_score",
+    "measurement_confidence",
+    "severity_score"
+  ];
+  const uncertaintyReason = deriveUncertaintyReason(roi, captureContext);
+  const metricSources: AuditTrail["metric_sources"] = fields.map((field) => ({
+    metric: field,
+    source:
+      field === "severity_score" && getMetricSource(field, aiMetrics, clinicianMetrics) === "unknown"
+        ? "derived"
+        : getMetricSource(field, aiMetrics, clinicianMetrics),
+    confidence: getMetricConfidence(field, aiMetrics, clinicianMetrics),
+    requires_confirmation: getMetricSource(field, aiMetrics, clinicianMetrics) !== "clinician",
+    uncertainty_reason: uncertaintyReason
+  }));
 
   const clinicianOverride =
     clinicianSeverityReview?.status === "overridden" ||
-    Object.entries(metricSources).some(([field, source]) => {
-      if (source !== "manual_entered") {
-        return false;
-      }
-
-      return hasMetricValue(field as keyof MetricAssessment, aiMetrics);
-    });
+    metricSources.some(
+      (source) =>
+        source.source === "clinician" &&
+        hasMetricValue(source.metric as keyof MetricAssessment, aiMetrics)
+    );
 
   return {
     ...createDefaultAuditTrail(),
     model_version: modelVersion ?? "woundwatch-heuristic-v2",
-    measurement_confidence:
-      clinicianMetrics.measurement_confidence ?? aiMetrics.measurement_confidence,
-    uncertainty_reasons: deriveUncertaintyReasons(roi, captureContext),
+    generated_at: reviewedAt ?? new Date().toISOString(),
     clinician_override: Boolean(clinicianOverride),
-    metric_sources: metricSources,
-    reviewed_at: reviewedAt ?? null
+    override_fields: metricSources
+      .filter((source) => source.source === "clinician")
+      .map((source) => source.metric),
+    metric_sources: metricSources
   };
 }

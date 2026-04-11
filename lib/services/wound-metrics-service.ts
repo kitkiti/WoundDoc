@@ -7,8 +7,7 @@ import {
   type MetricAssessment,
   type RiskForm,
   type ROIResult,
-  type TissueComposition,
-  type WoundMetrics
+  type TissueComposition
 } from "@/lib/types/schema";
 
 type WoundMetricsInput = {
@@ -17,6 +16,18 @@ type WoundMetricsInput = {
   captureContext?: CaptureContext;
   riskForm: RiskForm;
   roi: ROIResult;
+};
+
+type NormalizedTissueComposition = NonNullable<TissueComposition>;
+
+type DerivedWoundMetrics = {
+  ai_estimated: MetricAssessment;
+  clinician_entered: MetricAssessment;
+  depth_guidance: string;
+  structured_measurements: {
+    ai_estimated: Record<string, never>;
+    clinician_entered: Record<string, never>;
+  };
 };
 
 const qualityPenaltyByFlag = {
@@ -46,7 +57,8 @@ function getImageQualityScore(roi: ROIResult) {
     18,
     100 -
       roi.quality_flags.reduce(
-        (sum, flag) => sum + (qualityPenaltyByFlag[flag] ?? 10),
+        (sum, flag) =>
+          sum + (qualityPenaltyByFlag[flag as keyof typeof qualityPenaltyByFlag] ?? 10),
         0
       )
   );
@@ -76,8 +88,8 @@ function getMeasurementConfidence(
   return "low";
 }
 
-function normalizeTissueComposition(counts: Record<keyof TissueComposition, number>) {
-  const total = Object.values(counts).reduce((sum, value) => sum + value, 0);
+function normalizeTissueComposition(counts: Record<keyof NormalizedTissueComposition, number>) {
+  const total = Object.values(counts).reduce<number>((sum, value) => sum + value, 0);
 
   if (total <= 0) {
     return null;
@@ -169,7 +181,7 @@ async function deriveImageSignals(imagePath: string, roi: ROIResult) {
   const outerY1 = Math.max(0, bbox[1] - expandedMarginY);
   const outerX2 = Math.min(image.bitmap.width, bbox[2] + expandedMarginX);
   const outerY2 = Math.min(image.bitmap.height, bbox[3] + expandedMarginY);
-  const counts: Record<keyof TissueComposition, number> = {
+  const counts: Record<keyof NormalizedTissueComposition, number> = {
     granulation: 0,
     slough: 0,
     eschar: 0,
@@ -306,16 +318,23 @@ export async function deriveWoundMetrics({
   captureContext,
   riskForm,
   roi
-}: WoundMetricsInput): Promise<WoundMetrics> {
+}: WoundMetricsInput): Promise<DerivedWoundMetrics> {
   const areaPx =
-    roi.mask_area_px ?? (roi.bbox ? (roi.bbox[2] - roi.bbox[0]) * (roi.bbox[3] - roi.bbox[1]) : null);
+    roi.mask_area_px ??
+    (roi.bbox ? (roi.bbox[2] - roi.bbox[0]) * (roi.bbox[3] - roi.bbox[1]) : null);
   const perimeterPx = roi.perimeter_px ?? null;
   const majorAxisPx =
-    roi.major_axis_px ??
-    (roi.mask_bbox ? roi.mask_bbox[2] - roi.mask_bbox[0] : roi.bbox ? roi.bbox[2] - roi.bbox[0] : null);
+    roi.mask_bbox
+      ? roi.mask_bbox[2] - roi.mask_bbox[0]
+      : roi.bbox
+        ? roi.bbox[2] - roi.bbox[0]
+        : null;
   const minorAxisPx =
-    roi.minor_axis_px ??
-    (roi.mask_bbox ? roi.mask_bbox[3] - roi.mask_bbox[1] : roi.bbox ? roi.bbox[3] - roi.bbox[1] : null);
+    roi.mask_bbox
+      ? roi.mask_bbox[3] - roi.mask_bbox[1]
+      : roi.bbox
+        ? roi.bbox[3] - roi.bbox[1]
+        : null;
   const imageQualityScore = getImageQualityScore(roi);
   const measurementConfidence = getMeasurementConfidence(roi, imageQualityScore, captureContext);
   const imageSignals = await deriveImageSignals(imagePath, roi);
@@ -346,6 +365,10 @@ export async function deriveWoundMetrics({
     },
     clinician_entered: emptyClinicianAssessment(),
     depth_guidance:
-      "Depth is not inferable from a single 2D mobile photo. Use clinician-entered depth or a validated calibrated workflow."
+      "Depth is not inferable from a single 2D mobile photo. Use clinician-entered depth or a validated calibrated workflow.",
+    structured_measurements: {
+      ai_estimated: {},
+      clinician_entered: {}
+    }
   };
 }

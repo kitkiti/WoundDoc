@@ -18,6 +18,20 @@ type SeverityInput = {
   woundMetrics: WoundMetrics;
 };
 
+function toConfidenceLevel(value: string | null | undefined): ConfidenceLevel | null {
+  switch (value) {
+    case "very_low":
+    case "low":
+    case "moderate":
+    case "high":
+    case "very_high":
+    case "unknown":
+      return value;
+    default:
+      return null;
+  }
+}
+
 function countRiskSignals(riskForm: RiskForm) {
   return [
     riskForm.mobility_limited,
@@ -193,7 +207,7 @@ export function deriveSeverityAssessment({
       )
     );
   const level = getSeverityLevel(score);
-  const confidence = getSeverityConfidence(aiMetrics.measurement_confidence, roi);
+  const confidence = getSeverityConfidence(toConfidenceLevel(aiMetrics.measurement_confidence), roi);
   const supportingSignals = buildSupportingSignals({ riskForm, woundMetrics });
   const uncertaintyReasons = buildUncertaintyReasons(roi, confidence);
 

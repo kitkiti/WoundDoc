@@ -1,4 +1,10 @@
-import { captureContextSchema, type CaptureContext } from "@/lib/types/schema";
+import {
+  captureContextSchema,
+  captureReferenceTypeValues,
+  type CaptureContext
+} from "../types/schema";
+
+const validReferenceTypes = new Set<string>(captureReferenceTypeValues);
 
 function toBoolean(value: unknown) {
   if (typeof value === "boolean") return value;
@@ -16,11 +22,29 @@ function toNullableNumber(value: unknown) {
   return null;
 }
 
+export function normalizeReferenceType(value: unknown): CaptureContext["reference_type"] {
+  if (typeof value !== "string") {
+    return "none";
+  }
+
+  const normalized = value.trim().toLowerCase();
+
+  if (normalized === "calibration_card") {
+    return "color_card";
+  }
+
+  if (validReferenceTypes.has(normalized)) {
+    return normalized as CaptureContext["reference_type"];
+  }
+
+  return normalized === "none" ? "none" : "other";
+}
+
 export function parseCaptureContext(input: unknown): CaptureContext {
   const obj = (input ?? {}) as Record<string, unknown>;
   const parsed = {
     reference_visible: toBoolean(obj.reference_visible),
-    reference_type: typeof obj.reference_type === "string" ? obj.reference_type : "none",
+    reference_type: normalizeReferenceType(obj.reference_type),
     reference_length_cm: toNullableNumber(obj.reference_length_cm),
     reference_length_px: toNullableNumber(obj.reference_length_px),
     pixels_per_cm: toNullableNumber(obj.pixels_per_cm),
@@ -51,6 +75,8 @@ export function parseCaptureContext(input: unknown): CaptureContext {
     reference_length_cm: normalized.reference_visible ? normalized.reference_length_cm : null,
     reference_length_px: normalized.reference_visible ? normalized.reference_length_px : null,
     pixels_per_cm: normalized.reference_visible ? normalized.pixels_per_cm : null,
-    calibration_status: normalized.reference_visible ? normalized.calibration_status : "not_calibrated"
+    calibration_status: normalized.reference_visible
+      ? normalized.calibration_status
+      : "not_calibrated"
   };
 }

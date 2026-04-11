@@ -16,6 +16,16 @@ type UploadPageProps = {
   };
 };
 
+const referenceTypeOptions: Array<{
+  label: string;
+  value: Exclude<CaptureContext["reference_type"], "none">;
+}> = [
+  { label: "Ruler", value: "ruler" },
+  { label: "Round marker", value: "marker" },
+  { label: "Color card", value: "color_card" },
+  { label: "Other ref", value: "other" }
+];
+
 function createEmptyCaptureContext(): CaptureContext {
   return {
     reference_visible: false,
@@ -297,11 +307,7 @@ export default function UploadPage({ params }: UploadPageProps) {
         {normalizedCaptureContext.reference_visible ? (
           <>
             <div className="mt-4 flex flex-wrap gap-2">
-              {[
-                ["ruler", "Ruler"],
-                ["marker", "Round marker"],
-                ["color_card", "Color card"]
-              ].map(([value, label]) => (
+              {referenceTypeOptions.map(({ value, label }) => (
                 <button
                   key={value}
                   type="button"

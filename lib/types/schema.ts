@@ -1,6 +1,13 @@
 import { z } from "zod";
 
 const isoDateTimeSchema = z.string().datetime({ offset: true });
+export const captureReferenceTypeValues = [
+  "none",
+  "ruler",
+  "marker",
+  "color_card",
+  "other"
+] as const;
 
 export const uploadRecordSchema = z.object({
   stored_name: z.string(),
@@ -16,7 +23,7 @@ export const uploadRecordSchema = z.object({
 
 export const captureContextSchema = z.object({
   reference_visible: z.boolean().default(false),
-  reference_type: z.enum(["none", "ruler", "calibration_card", "other"]).default("none"),
+  reference_type: z.enum(captureReferenceTypeValues).default("none"),
   reference_length_cm: z.number().nullable().default(null),
   reference_length_px: z.number().nullable().default(null),
   pixels_per_cm: z.number().nullable().default(null),
@@ -344,10 +351,34 @@ export const caseRecordSchema = z.object({
   progression: caseProgressionSchema
 });
 
+export const severityLevelSchema = z.enum(["low", "moderate", "high", "critical"]);
+
+export const clinicianSeverityReviewSchema = z.object({
+  status: z.enum(["pending", "confirmed", "overridden"]).default("pending"),
+  score: z.number().min(0).max(100).nullable().default(null),
+  level: severityLevelSchema.nullable().default(null),
+  summary: z.string().default(""),
+  confidence: confidenceBandSchema.nullable().default(null)
+});
+
+export const severityAssessmentSchema = z.object({
+  ai_estimated: z.object({
+    score: z.number().min(0).max(100).nullable().default(null),
+    level: severityLevelSchema.nullable().default(null),
+    confidence: confidenceBandSchema.nullable().default(null),
+    summary: z.string().default(""),
+    supporting_signals: z.array(z.string()).default([]),
+    uncertainty_reasons: z.array(z.string()).default([]),
+    components: z.record(z.number()).default({})
+  }),
+  clinician_review: clinicianSeverityReviewSchema.default({})
+});
+
 export type UploadRecord = z.infer<typeof uploadRecordSchema>;
 export type CaptureContext = z.infer<typeof captureContextSchema>;
 export type RiskForm = z.infer<typeof riskFormSchema>;
 export type TissueComposition = z.infer<typeof tissueCompositionSchema>;
+export type ConfidenceLevel = z.infer<typeof confidenceBandSchema>;
 export type MetricAssessment = z.infer<typeof metricAssessmentSchema>;
 export type ChecklistItem = z.infer<typeof checklistItemSchema>;
 export type ModelEvaluation = z.infer<typeof modelEvaluationSchema>;
@@ -357,7 +388,22 @@ export type WoundRecord = z.infer<typeof woundRecordSchema>;
 export type PatientRecord = z.infer<typeof patientRecordSchema>;
 export type CaseRecord = z.infer<typeof caseRecordSchema>;
 export type CaseProgression = z.infer<typeof caseProgressionSchema>;
+export type SeverityLevel = z.infer<typeof severityLevelSchema>;
+export type ClinicianSeverityReview = z.infer<typeof clinicianSeverityReviewSchema>;
+export type SeverityAssessment = z.infer<typeof severityAssessmentSchema>;
+export type WoundMetrics = z.infer<typeof analysisOutputSchema>["wound_metrics"];
 
 export type RoiResult = z.infer<typeof roiResultSchema>;
-export type ClassificationResult = z.infer<typeof classificationResultSchema>
-export type ConcernOutput = z.infer<typeof concernOutputSchema>
+export type ROIResult = RoiResult;
+export type ClassificationResult = z.infer<typeof classificationResultSchema>;
+export type ConcernOutput = z.infer<typeof concernOutputSchema>;
+
+export function createEmptyClinicianSeverityReview(): ClinicianSeverityReview {
+  return clinicianSeverityReviewSchema.parse({});
+}
+
+export function createDefaultAuditTrail(): AuditTrail {
+  return auditTrailSchema.parse({
+    generated_at: new Date().toISOString()
+  });
+}
