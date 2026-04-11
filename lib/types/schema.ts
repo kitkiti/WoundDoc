@@ -127,6 +127,9 @@ export const roiResultSchema = z.object({
   mask_coverage_ratio: z.number().min(0).max(1).nullable().optional(),
   perimeter_px: z.number().nonnegative().nullable().optional(),
   segmentation_method: z.string().default("intensity_component_v1"),
+  segmentation_confidence: z.number().min(0).max(1).nullable().optional(),
+  segmentation_model_name: z.string().optional(),
+  segmentation_model_version: z.string().optional(),
   crop_dimensions: z
     .object({
       width: z.number().int().positive(),
