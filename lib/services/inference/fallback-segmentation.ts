@@ -1,6 +1,5 @@
+import type { RoiHint, SegmentationInferenceInput, SegmentationMaskResult } from "@/lib/services/inference/types";
 import Jimp from "jimp";
-import type { SegmentationInferenceInput, SegmentationMaskResult } from "@/lib/services/inference/types";
-import type { RoiHint } from "@/lib/services/inference/types";
 
 type PixelPoint = { x: number; y: number };
 
@@ -197,7 +196,7 @@ export async function runFallbackSegmentation(
     coverageRatio: stats.coverageRatio,
     qualityFlags,
     segmentationMethod: "fallback_intensity_component_v1",
-    segmentationConfidence: 0.42,
+    segmentationConfidence: Math.max(0.18, Math.min(0.58, 0.34 + stats.coverageRatio * 0.2)),
     segmentationModelName: "fallback_intensity_component_v1",
     segmentationModelVersion: "1.0.0"
   };

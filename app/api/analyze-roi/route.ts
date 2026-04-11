@@ -1,13 +1,14 @@
-import { getEncounterRecord, sanitizeCaseId } from "@/lib/server/storage";
 import { getErrorMessage, jsonError, jsonOk } from "@/lib/server/http";
 import { resolveCaseImageInput } from "@/lib/server/image-source";
-import { analyzeRoi } from "@/lib/services/roi-service";
+import { getEncounterRecord, sanitizeCaseId } from "@/lib/server/storage";
 import { deriveCalibratedMeasurements } from "@/lib/services/measurement-service";
+import { analyzeRoi } from "@/lib/services/roi-service";
 
 export async function POST(request: Request) {
   try {
     const payload = (await request.json()) as {
       caseId?: string;
+      encounterId?: string;
       imagePath?: string;
       demoCaseId?: string;
       captureContext?: {
@@ -15,6 +16,7 @@ export async function POST(request: Request) {
       };
     };
     const caseId = sanitizeCaseId(String(payload.caseId ?? ""));
+    const encounterId = sanitizeCaseId(String(payload.encounterId ?? caseId));
 
     if (!caseId) {
       return jsonError("caseId is required.");
@@ -33,6 +35,7 @@ export async function POST(request: Request) {
 
     const roi = await analyzeRoi({
       caseId,
+      artifactId: encounterId,
       imagePath,
       roiHint: demoCase?.roiHint,
       presetQualityFlags: demoCase?.qualityFlags
@@ -45,6 +48,7 @@ export async function POST(request: Request) {
 
     return jsonOk({
       case_id: caseId,
+      encounter_id: encounterId,
       roi,
       calibrated_measurements: calibratedMeasurements
     });

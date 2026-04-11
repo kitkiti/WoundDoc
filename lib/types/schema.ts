@@ -150,6 +150,9 @@ export const classificationResultSchema = z.object({
   class_probabilities: z.record(z.number()),
   adapter_name: z.string().optional(),
   model_version: z.string().optional(),
+  model_name: z.string().optional(),
+  model_card: z.string().optional(),
+  embedding_reference: z.string().optional(),
   calibrated: z.boolean().optional(),
   uncertainty_reasons: z.array(z.string()).default([]),
   secondary_findings: z.array(z.string()).default([])
@@ -221,7 +224,9 @@ export const auditMetricSourceSchema = z.object({
 });
 
 export const auditTrailSchema = z.object({
+  model_name: z.string().default("unknown"),
   model_version: z.string().default("unknown"),
+  model_card: z.string().default(""),
   inference_id: z.string().default(""),
   generated_at: isoDateTimeSchema,
   clinician_override: z.boolean().default(false),

@@ -17,7 +17,7 @@ import {
 } from "@/lib/types/schema";
 
 type Input = {
-  caseId: string;
+  encounterId: string;
   patientId: string;
   woundId: string;
   imagePath: string;
@@ -29,7 +29,11 @@ type Input = {
 
 export async function runFullPipeline(input: Input) {
   const riskForm = parseRiskForm(input.riskForm);
-  const roi = await analyzeRoi({ caseId: input.caseId, imagePath: input.imagePath });
+  const roi = await analyzeRoi({
+    caseId: input.encounterId,
+    artifactId: input.encounterId,
+    imagePath: input.imagePath
+  });
   const calibrated = deriveCalibratedMeasurements(roi, input.captureContext.pixels_per_cm);
   const classifierRun = await runClassifier({ imagePath: input.imagePath, riskForm, roi, demoCaseId: input.demoCaseId });
   const provisionalMetrics: MetricAssessment = {
@@ -108,7 +112,7 @@ export async function runFullPipeline(input: Input) {
 
   const output = analysisOutputSchema.parse({
       meta: {
-        encounter_id: input.caseId,
+        encounter_id: input.encounterId,
         patient_id: input.patientId,
         wound_id: input.woundId,
         demo_mode: Boolean(input.demoCaseId),
